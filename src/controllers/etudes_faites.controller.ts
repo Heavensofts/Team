@@ -28,14 +28,39 @@ export const AddEtudeFaites: Handler = async (req: Request, res: Response) => {
       .send({ errorMessage: "Veuillez remplir les champ requis" });
   }
 
-  const checkStatut = await StatusEntity.findOne({ nom: "Displayed" });
-
+  let checkStatut = await StatusEntity.findOne({ nom: "Displayed" });
   if (!checkStatut) {
-    return res.status(404).send({
-      errorMessage: "Aucun statut correspondant",
+
+    const myStatut = new StatusEntity({
+      nom: 'Displayed', description: "Le statut qui rend les éléments visibles", type_statut: 0
+    });
+
+    await myStatut.save().then((result) => {
+      checkStatut = result;
+    }).catch((error) => {
+      return res.status(500).send({
+        errorMessage: "Une erreur s'est produite, veuillez réessayer",
+      });
     });
   }
 
+  let checkStatut2 = await StatusEntity.findOne({nom: 'No-displayed'});
+  if(!checkStatut2){
+    const myStatut = new StatusEntity({
+      nom: 'No-displayed', 
+      description: "Le statut qui rend les éléments invisibles", 
+      type_statut: 0
+    });
+  
+    await myStatut.save().then((result) => {
+      checkStatut = result;
+    }).catch((error) => {
+      console.log(error.message);
+      return res.status(500).send({
+        errorMessage: "Une erreur s'est produite, veuillez réessayer",
+      });
+    });
+  }
 
   const etudeFaites = new EtudeFaitesEntity({
     annee_debut: annee_debut, 
@@ -162,12 +187,7 @@ export const DeleteEtudeFaites: Handler = async (req: Request, res: Response) =>
       .send({ errorMessage: "Id Invalid" });
   }
 
-  const checkStatut = await StatusEntity.findOne({nom: 'No-displayed'});
-
-  await EtudeFaitesEntity.findByIdAndUpdate(id, { 
-    statut_deleted: checkStatut.nom, 
-    date_deleted: Date.now() 
-  })
+  await EtudeFaitesEntity.findByIdAndRemove(id)
     .then((result) => {
       if (!result) {
         return res

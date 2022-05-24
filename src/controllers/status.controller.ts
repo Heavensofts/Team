@@ -23,6 +23,7 @@ export const AddStatut: Handler = async (req: Request, res: Response) => {
     const myStatut = new StatusEntity({
       nom,
       description,
+      type_statut: 1
     });
 
     await myStatut
@@ -45,7 +46,7 @@ export const AddStatut: Handler = async (req: Request, res: Response) => {
 
 export const GetStatuts: Handler = async (req: Request, res: Response) => {
   
-  await StatusEntity.find()
+  await StatusEntity.find({type_statut:1})
     .then((statut) => {
       if (!statut) {
         return res.status(404).send({ errorMessage: "Aucun statut trouvé" });
@@ -128,6 +129,32 @@ export const UpdateStatut: Handler = async (req: Request, res: Response) => {
       console.log(error);
       return res.status(500).send({
         errorMessage: "Une erreur s'est produite lors de la mise à jour ",
+      });
+    });
+};
+
+export const DeleteStatut: Handler = async (req: Request, res: Response) => {
+  const id = req.params.id;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res
+      .status(400)
+      .send({ errorMessage: "Id Invalid" });
+  }
+
+  await StatusEntity.findByIdAndRemove(id)
+    .then((result) => {
+      if (!result) {
+        return res
+          .status(400)
+          .send({ errorMessage: "Suppression non aboutie" });
+      }
+
+      return res.status(200).send({ message: "Suppression effectué" });
+    })
+    .catch((error) => {
+      return res.status(500).send({
+        errorMessage: "Une erreur s'est produite lors de la suppression",
       });
     });
 };

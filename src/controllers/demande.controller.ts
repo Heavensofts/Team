@@ -4,9 +4,12 @@ import { DemandeEntity } from "../entity/demande.entity";
 import { TypeDemandeEntity } from "../entity/type_demande.entity";
 import { StatusEntity } from "../entity/status.entity";
 import { AgentEntity } from "../entity/agent.entity";
+import path from "path";
+import mkdirp from "mkdirp";
+import fs from "fs-extra";
 
 export const AddDemande: Handler = async (req: Request, res: Response) => {
-  const { nom, agent, type_demande, description } = req.body;
+  const { nom, agent, type_demande, description, documents } = req.body;
 
   if (
     typeof nom === undefined ||
@@ -28,11 +31,40 @@ export const AddDemande: Handler = async (req: Request, res: Response) => {
       .send({ errorMessage: "Veuillez remplir les champ requis" });
   }
 
-  const checkStatut = await StatusEntity.findOne({ nom: "Displayed" });
+  let checkStatut = await StatusEntity.findOne({ nom: "Displayed" });
 
   if (!checkStatut) {
-    return res.status(404).send({
-      errorMessage: "Aucun statut correspondant",
+
+    const myStatut = new StatusEntity({
+      nom: 'Displayed', description: "Le statut qui rend les éléments visibles", type_statut: 0
+    });
+
+    await myStatut.save().then((result) => {
+      checkStatut = result;
+    }).catch((error) => {
+      console.log(error.message);
+      return res.status(500).send({
+        errorMessage: "Une erreur s'est produite, veuillez réessayer",
+      });
+    });
+  }
+
+  let checkStatut2 = await StatusEntity.findOne({nom: 'No-displayed'});
+
+  if(!checkStatut2){
+    const myStatut = new StatusEntity({
+      nom: 'No-displayed', 
+      description: "Le statut qui rend les éléments invisibles", 
+      type_statut: 0
+    });
+  
+    await myStatut.save().then((result) => {
+      checkStatut = result;
+    }).catch((error) => {
+      console.log(error.message);
+      return res.status(500).send({
+        errorMessage: "Une erreur s'est produite, veuillez réessayer",
+      });
     });
   }
 
@@ -51,6 +83,9 @@ export const AddDemande: Handler = async (req: Request, res: Response) => {
       errorMessage: "Aucun type demande correspondant",
     });
   }
+
+  let myDocPath = [];
+  const myUser: any = req['user'];
 
   const demande = new DemandeEntity({
     nom: nom.toUpperCase(),
@@ -183,13 +218,7 @@ export const DeleteDemande: Handler = async (req: Request, res: Response) => {
       .status(400)
       .send({ errorMessage: "Id Invalid" });
   }
-
-  const checkStatut = await StatusEntity.findOne({nom: 'No-displayed'});
-
-  await DemandeEntity.findByIdAndUpdate(id, { 
-    statut_deleted: checkStatut.nom, 
-    date_deleted: Date.now() 
-  })
+  await DemandeEntity.findByIdAndRemove(id)
     .then((result) => {
       if (!result) {
         return res

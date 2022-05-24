@@ -50,3 +50,7 @@ export const Login: Handler = async (req: Request, res: Response) => {
       .send({ message: "An error occurred", erreur: error.message });
   }
 };
+
+export const AuthenticatedUser: Handler = async (req: Request, res: Response) =>{
+  res.send({user: req['user']});
+} 

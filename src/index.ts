@@ -4,6 +4,9 @@ import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUI from "swagger-ui-express";
 import mongoose from "mongoose";
 import { options } from "./swaggerOptions";
+import cookieParser from "cookie-parser";
+import fileUpload from 'express-fileupload';
+import path from "path";
 
 const app: Application = express();
 const PORT = process.env.PORT || 5000;
@@ -21,6 +24,7 @@ mongoose
     console.log("MongoDB Connected");
 
     app.use(express.json());
+    app.use(cookieParser());
     app.use(express.urlencoded({ extended: true }));
     app.use(
       cors({
@@ -29,7 +33,8 @@ mongoose
       })
     );
 
-    app.use(express.static("public"));
+    app.use(express.static(path.join(__dirname, 'public')));
+    app.use(fileUpload());
 
     app.use((req: Request, res: Response, next) => {
       res.header("Access-Control-Allow-Origin", "*");
@@ -37,6 +42,7 @@ mongoose
         "Access-Control-Allow-Headers",
         "X-Requested-With,content-type, Accept"
       );
+
       res.header(
         "Access-Control-Allow-Methods",
         "GET, POST, OPTIONS, PUT, PATCH, DELETE"
@@ -48,10 +54,13 @@ mongoose
     app.use(router);
     app.use("/api/docs", swaggerUI.serve, swaggerUI.setup(specs));
 
-    app.listen(PORT, () => {
+    app.listen(PORT, async() => {
       console.log(`I'm alive on port: ${PORT}`);
-    });
+
+    }); 
+
   })
   .catch((err) => {
     console.log("Error on mongodb: ", err);
   });
+

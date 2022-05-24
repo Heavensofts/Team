@@ -33,7 +33,7 @@ const DepartementSchema = new Schema({
 
   departement_hierarchique:{
     type: String,
-    required: true
+    required: false
   },
 
   date_deleted: {

@@ -4,26 +4,50 @@ import { DepartementEntity } from "../entity/departement.entity";
 import { StatusEntity } from "../entity/status.entity";
 
 export const AddDepartement: Handler = async (req: Request, res: Response) => {
-  const { nom, departement_hierarchique} = req.body;
+  const { nom, departement_hierarchique, directeur, directeur_adjoint} = req.body;
 
   if (
     typeof nom === undefined ||
     nom === null ||
-    !nom ||
-    typeof departement_hierarchique === undefined ||
-    departement_hierarchique === null ||
-    !departement_hierarchique
+    !nom
   ) {
     return res
       .status(400)
       .send({ errorMessage: "Veuillez remplir les champ requis" });
   }
 
-  const checkStatut = await StatusEntity.findOne({ nom: "Displayed" });
+  let checkStatut = await StatusEntity.findOne({ nom: "Displayed" });
 
   if (!checkStatut) {
-    return res.status(404).send({
-      errorMessage: "Aucun statut correspondant",
+
+    const myStatut = new StatusEntity({
+      nom: 'Displayed', description: "Le statut qui rend les éléments visibles", type_statut: 0
+    });
+
+    await myStatut.save().then((result) => {
+      checkStatut = result;
+    }).catch((error) => {
+      return res.status(500).send({
+        errorMessage: "Une erreur s'est produite, veuillez réessayer",
+      });
+    });
+  }
+
+  let checkStatut2 = await StatusEntity.findOne({nom: 'No-displayed'});
+  if(!checkStatut2){
+    const myStatut = new StatusEntity({
+      nom: 'No-displayed', 
+      description: "Le statut qui rend les éléments invisibles", 
+      type_statut: 0
+    });
+  
+    await myStatut.save().then((result) => {
+      checkStatut = result;
+    }).catch((error) => {
+      console.log(error.message);
+      return res.status(500).send({
+        errorMessage: "Une erreur s'est produite, veuillez réessayer",
+      });
     });
   }
 
@@ -34,6 +58,8 @@ export const AddDepartement: Handler = async (req: Request, res: Response) => {
     const departement = new DepartementEntity({
       nom: nom.toUpperCase(), 
       departement_hierarchique,
+      directeur,
+      directeur_adjoint,
       statut_deleted: checkStatut.nom
     });
   
@@ -105,11 +131,7 @@ export const UpdateDepartement: Handler = async (req: Request, res: Response) =>
       .send({ errorMessage: "Id Invalid" });
   }
 
-  if (
-    typeof update.nom === undefined || update.nom === null || !update.nom 
-    || typeof update.departement_hierarchique === undefined ||
-    update.departement_hierarchique === null || !update.departement_hierarchique
-  ) {
+  if (typeof update.nom === undefined || update.nom === null || !update.nom) {
     return res
       .status(400)
       .send({ errorMessage: "Veuillez remplir les champ requis" });
@@ -146,12 +168,7 @@ export const DeleteDepartement: Handler = async (req: Request, res: Response) =>
       .send({ errorMessage: "Id Invalid" });
   }
 
-  const checkStatut = await StatusEntity.findOne({nom: 'No-displayed'});
-
-  await DepartementEntity.findByIdAndUpdate(id, { 
-    statut_deleted: checkStatut.nom, 
-    date_deleted: Date.now() 
-  })
+  await DepartementEntity.findByIdAndRemove(id)
     .then((result) => {
       if (!result) {
         return res

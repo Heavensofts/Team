@@ -48,11 +48,38 @@ export const AddRecrutement: Handler = async (req: Request, res: Response) => {
       .send({ errorMessage: "Veuillez remplir les champs requis" });
   }
 
-  const checkStatut = await StatusEntity.findOne({ nom: "Displayed" });
+  let checkStatut = await StatusEntity.findOne({ nom: "Displayed" });
 
   if (!checkStatut) {
-    return res.status(404).send({
-      errorMessage: "Aucun statut correspondant",
+
+    const myStatut = new StatusEntity({
+      nom: 'Displayed', description: "Le statut qui rend les éléments visibles", type_statut: 0
+    });
+
+    await myStatut.save().then((result) => {
+      checkStatut = result;
+    }).catch((error) => {
+      return res.status(500).send({
+        errorMessage: "Une erreur s'est produite, veuillez réessayer",
+      });
+    });
+  }
+
+  let checkStatut2 = await StatusEntity.findOne({nom: 'No-displayed'});
+  if(!checkStatut2){
+    const myStatut = new StatusEntity({
+      nom: 'No-displayed', 
+      description: "Le statut qui rend les éléments invisibles", 
+      type_statut: 0
+    });
+  
+    await myStatut.save().then((result) => {
+      checkStatut = result;
+    }).catch((error) => {
+      console.log(error.message);
+      return res.status(500).send({
+        errorMessage: "Une erreur s'est produite, veuillez réessayer",
+      });
     });
   }
 
@@ -99,23 +126,6 @@ export const AddRecrutement: Handler = async (req: Request, res: Response) => {
     });
   }
 
-
-  // for (const key in recruteur) {
-  //   console.log("Mon recruteur: ", key)
-  //   let recru = await AgentEntity.findOne({ nom: key.toUpperCase() });
-
-  //   if (!recru) {
-  //     return res.status(404).send({
-  //       errorMessage: "Aucun recruteur correspondant",
-  //     });
-  //   }
-
-  //   console.log("My recru: ", recru);
-
-  //   myRecruteur.push(recru._id);
-
-  // }
-
   let myTypeContrat = [];
 
   type_contrat.map(async (con: any) => {
@@ -139,20 +149,6 @@ export const AddRecrutement: Handler = async (req: Request, res: Response) => {
       errorMessage: "Aucun type contrat correspondant",
     });
   }
-
-  // for (const key in type_contrat) {
-    
-  //   let type_con = await TypeContratEntity.findOne({ nom: key.toUpperCase() });
-
-  //   if (!type_con) {
-  //     return res.status(404).send({
-  //       errorMessage: "Aucun type contrat correspondant",
-  //     });
-  //   }
-
-  //   myTypeContrat.push(type_con._id);
-
-  // }
 
   const checkPoste = await PosteEntity.findOne({
     nom: poste.toUpperCase(),
@@ -356,12 +352,7 @@ export const DeleteRecrutement: Handler = async (req: Request, res: Response) =>
     return res.status(400).send({ errorMessage: "Id Invalid" });
   }
 
-  const checkStatut = await StatusEntity.findOne({ nom: "No-displayed" });
-
-  await RecrutementEntity.findByIdAndUpdate(id, {
-    statut_deleted: checkStatut.nom,
-    date_deleted: Date.now(),
-  })
+  await RecrutementEntity.findByIdAndRemove(id)
     .then((result) => {
       if (!result) {
         return res

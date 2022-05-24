@@ -1,7 +1,7 @@
 import {Router} from "express";
 import { AddAccess, DeleteAccess, GetAccess, GetAccessById, UpdateAccess } from "../controllers/access.controller";
 import { AddAgent, DeleteAgent, GetAgentById, GetAgents, UpdateAgent } from "../controllers/agent_controller";
-import { Login } from "../controllers/auth.controller";
+import { AuthenticatedUser, Login } from "../controllers/auth.controller";
 import { AddCandidat, DeleteCandidat, GetCandidatById, GetCandidats, UpdateCandidat } from "../controllers/candidat.controller";
 import { AddConge, DeleteConge, GetCongeById, GetConges, UpdateConge } from "../controllers/conge.controller";
 import { AddContrat, DeleteContrat, GetContratById, GetContrats, UpdateContrat } from "../controllers/contrat.controller";
@@ -20,12 +20,13 @@ import { AddPoste, DeletePoste, GetPosteById, GetPostes, UpdatePoste } from "../
 import { AddPresence, DeletePresence, GetPresenceById, GetPresences, UpdatePresence } from "../controllers/presence.controller";
 import { AddRecrutement, DeleteRecrutement, GetRecrutementById, GetRecrutements, UpdateRecrutement } from "../controllers/recrutement.controller";
 import { AddRole, DeleteRole, GetRoleById, GetRoles, UpdateRole } from "../controllers/role.controller";
-import { AddStatut, GetStatutById, GetStatuts, UpdateStatut } from "../controllers/status.controller";
+import { AddStatut, DeleteStatut, GetStatutById, GetStatuts, UpdateStatut } from "../controllers/status.controller";
 import { AddTypeAccess, DeleteTypeAccess, GetTypeAccess, GetTypeAccessById, UpdateTypeAccess } from "../controllers/type_access.controller";
 import { AddTypeConge, DeleteTypeConge, GetTypeCongeById, GetTypeConges, UpdateTypeConge } from "../controllers/type_conge.controller";
 import { AddTypeContrat, DeleteTypeContrat, GetTypeContratById, GetTypeContrats, UpdateTypeContrat } from "../controllers/type_contrat.controller";
 import { AddTypeDemande, DeleteTypeDemande, GetTypeDemandeById, GetTypeDemandes, UpdateTypeDemande } from "../controllers/type_demande.controller";
 import { AddTypeTache, DeleteTypeTache, GetTypeTacheById, GetTypeTaches, UpdateTypeTache } from "../controllers/type_tache.controller";
+import { AuthMiddleware } from "../middleware/auth.middleware";
 const router = Router();
 
 
@@ -110,7 +111,7 @@ const router = Router();
  *
  */
 
- router.post("/api/genre", AddGenre);
+ router.post("/api/genre", AuthMiddleware, AddGenre);
 
 
 /**
@@ -136,7 +137,7 @@ const router = Router();
  *                $ref: '#/components/schemas/GenreNotFound'
  */
 
- router.get("/api/genre", GetGenres);
+ router.get("/api/genre", AuthMiddleware, GetGenres);
 
 /**
  * @swagger
@@ -161,7 +162,7 @@ const router = Router();
  *              $ref: '#/components/schemas/GenreNotFound'
  */
 
- router.get("/api/genre/:id", GetGenreById);
+ router.get("/api/genre/:id", AuthMiddleware, GetGenreById);
 
 
  /**
@@ -194,7 +195,7 @@ const router = Router();
  *
  */
 
-  router.put("/api/genre/:id", UpdateGenre);
+  router.put("/api/genre/:id", AuthMiddleware, UpdateGenre);
 
 /**
  * @swagger
@@ -220,7 +221,7 @@ const router = Router();
  *
  */
 
- router.delete("/api/genre/:id", DeleteGenre)
+ router.delete("/api/genre/:id", AuthMiddleware, DeleteGenre)
 
 // =============================== FIN ROUTES GENRE ===============================
 
@@ -299,7 +300,7 @@ const router = Router();
  *
  */
 
- router.post("/api/statut", AddStatut);
+ router.post("/api/statut", AuthMiddleware, AddStatut);
 
 /**
  * @swagger
@@ -324,7 +325,7 @@ const router = Router();
  *                $ref: '#/components/schemas/StatutNotFound'
  */
 
- router.get("/api/statut", GetStatuts);
+ router.get("/api/statut", AuthMiddleware, GetStatuts);
 
 /**
  * @swagger
@@ -349,7 +350,7 @@ const router = Router();
  *              $ref: '#/components/schemas/StatutNotFound'
 */
 
-router.get("/api/statut/:id", GetStatutById);
+router.get("/api/statut/:id", AuthMiddleware, GetStatutById);
 
 /**
  * @swagger
@@ -381,7 +382,33 @@ router.get("/api/statut/:id", GetStatutById);
  *
 */
 
-router.put("/api/statut/:id", UpdateStatut);
+router.put("/api/statut/:id", AuthMiddleware, UpdateStatut);
+
+/**
+ * @swagger
+ * /api/statut/{id}:
+ *  delete:
+ *    summary: delete a statut by id
+ *    tags: [Statut]
+ *    parameters:
+ *      - $ref: '#/components/parameters/StatutId'
+ *    responses:
+ *      200:
+ *        description: the statut was deleted
+ *        content:
+ *          application/json:
+ *            schema:
+ *            $ref: '#/components/schemas/Statut'
+ *      404:
+ *        description: the statut was not found
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/StatutNotFound'
+ *
+ */
+
+ router.delete("/api/statut/:id", AuthMiddleware, DeleteStatut)
 
 // ========================== END Status Routes =========================
 
@@ -466,7 +493,7 @@ router.put("/api/statut/:id", UpdateStatut);
  *
  */
 
- router.post("/api/niveau-etude", AddNiveauEtude);
+ router.post("/api/niveau-etude", AuthMiddleware, AddNiveauEtude);
 
 
 /**
@@ -492,7 +519,7 @@ router.put("/api/statut/:id", UpdateStatut);
  *                $ref: '#/components/schemas/NiveauEtudeNotFound'
  */
 
- router.get("/api/niveau-etude", GetNiveauEtudes);
+ router.get("/api/niveau-etude", AuthMiddleware, GetNiveauEtudes);
 
 /**
  * @swagger
@@ -517,7 +544,7 @@ router.put("/api/statut/:id", UpdateStatut);
  *              $ref: '#/components/schemas/NiveauEtudeNotFound'
  */
 
- router.get("/api/niveau-etude/:id", GetNiveauById);
+ router.get("/api/niveau-etude/:id", AuthMiddleware, GetNiveauById);
 
 
  /**
@@ -550,7 +577,7 @@ router.put("/api/statut/:id", UpdateStatut);
  *
  */
 
-  router.put("/api/niveau-etude/:id", UpdateNiveauEtude);
+  router.put("/api/niveau-etude/:id", AuthMiddleware, UpdateNiveauEtude);
 
 /**
  * @swagger
@@ -576,7 +603,7 @@ router.put("/api/statut/:id", UpdateStatut);
  *
  */
 
- router.delete("/api/niveau-etude/:id", DeleteNiveauEtude)
+ router.delete("/api/niveau-etude/:id", AuthMiddleware, DeleteNiveauEtude)
 
 // =============================== FIN ROUTES NIVEAU ETUDE =============================
 
@@ -662,7 +689,7 @@ router.put("/api/statut/:id", UpdateStatut);
  *
  */
 
- router.post("/api/etat-civil", AddEtatCivil);
+ router.post("/api/etat-civil", AuthMiddleware, AddEtatCivil);
 
 
 /**
@@ -688,7 +715,7 @@ router.put("/api/statut/:id", UpdateStatut);
  *                $ref: '#/components/schemas/EtatCivilNotFound'
  */
 
- router.get("/api/etat-civil", GetEtatCivils);
+ router.get("/api/etat-civil", AuthMiddleware, GetEtatCivils);
 
 /**
  * @swagger
@@ -713,7 +740,7 @@ router.put("/api/statut/:id", UpdateStatut);
  *              $ref: '#/components/schemas/EtatCivilNotFound'
  */
 
- router.get("/api/etat-civil/:id", GetEtatCivilById);
+ router.get("/api/etat-civil/:id", AuthMiddleware, GetEtatCivilById);
 
 
  /**
@@ -746,7 +773,7 @@ router.put("/api/statut/:id", UpdateStatut);
  *
  */
 
-  router.put("/api/etat-civil/:id", UpdateEtatCivil);
+  router.put("/api/etat-civil/:id", AuthMiddleware, UpdateEtatCivil);
 
 /**
  * @swagger
@@ -772,7 +799,7 @@ router.put("/api/statut/:id", UpdateStatut);
  *
  */
 
- router.delete("/api/etat-civil/:id", DeleteEtatCivil)
+ router.delete("/api/etat-civil/:id", AuthMiddleware, DeleteEtatCivil)
 
 // =============================== FIN ROUTES ETAT CIVIL =============================
 
@@ -858,7 +885,7 @@ router.put("/api/statut/:id", UpdateStatut);
  *
  */
 
- router.post("/api/type-tache", AddTypeTache);
+ router.post("/api/type-tache", AuthMiddleware, AddTypeTache);
 
 
 /**
@@ -884,7 +911,7 @@ router.put("/api/statut/:id", UpdateStatut);
  *                $ref: '#/components/schemas/TypeTacheNotFound'
  */
 
- router.get("/api/type-tache", GetTypeTaches);
+ router.get("/api/type-tache", AuthMiddleware, GetTypeTaches);
 
 /**
  * @swagger
@@ -909,7 +936,7 @@ router.put("/api/statut/:id", UpdateStatut);
  *              $ref: '#/components/schemas/TypeTacheNotFound'
  */
 
- router.get("/api/type-tache/:id", GetTypeTacheById);
+ router.get("/api/type-tache/:id", AuthMiddleware, GetTypeTacheById);
 
 
  /**
@@ -942,7 +969,7 @@ router.put("/api/statut/:id", UpdateStatut);
  *
  */
 
-  router.put("/api/type-tache/:id", UpdateTypeTache);
+  router.put("/api/type-tache/:id", AuthMiddleware, UpdateTypeTache);
 
 /**
  * @swagger
@@ -968,7 +995,7 @@ router.put("/api/statut/:id", UpdateStatut);
  *
  */
 
- router.delete("/api/type-tache/:id", DeleteTypeTache)
+ router.delete("/api/type-tache/:id", AuthMiddleware, DeleteTypeTache)
 
 // =============================== FIN ROUTES TYPE TACHE =============================
 
@@ -1054,7 +1081,7 @@ router.put("/api/statut/:id", UpdateStatut);
  *
  */
 
- router.post("/api/type-access", AddTypeAccess);
+ router.post("/api/type-access", AuthMiddleware, AddTypeAccess);
 
 
 /**
@@ -1080,7 +1107,7 @@ router.put("/api/statut/:id", UpdateStatut);
  *                $ref: '#/components/schemas/TypeAccessNotFound'
  */
 
- router.get("/api/type-access", GetTypeAccess);
+ router.get("/api/type-access", AuthMiddleware, GetTypeAccess);
 
 /**
  * @swagger
@@ -1105,7 +1132,7 @@ router.put("/api/statut/:id", UpdateStatut);
  *              $ref: '#/components/schemas/TypeAccessNotFound'
  */
 
- router.get("/api/type-access/:id", GetTypeAccessById);
+ router.get("/api/type-access/:id", AuthMiddleware, GetTypeAccessById);
 
 
  /**
@@ -1138,7 +1165,7 @@ router.put("/api/statut/:id", UpdateStatut);
  *
  */
 
-  router.put("/api/type-access/:id", UpdateTypeAccess);
+  router.put("/api/type-access/:id", AuthMiddleware, UpdateTypeAccess);
 
 /**
  * @swagger
@@ -1164,7 +1191,7 @@ router.put("/api/statut/:id", UpdateStatut);
  *
  */
 
- router.delete("/api/type-access/:id", DeleteTypeAccess)
+ router.delete("/api/type-access/:id", AuthMiddleware, DeleteTypeAccess)
 
 // =============================== FIN ROUTES TYPE ACCESS =============================
 
@@ -1249,7 +1276,7 @@ router.put("/api/statut/:id", UpdateStatut);
  *
  */
 
- router.post("/api/type-conge", AddTypeConge);
+ router.post("/api/type-conge", AuthMiddleware, AddTypeConge);
 
 
 /**
@@ -1275,7 +1302,7 @@ router.put("/api/statut/:id", UpdateStatut);
  *                $ref: '#/components/schemas/TypeCongeNotFound'
  */
 
- router.get("/api/type-conge", GetTypeConges);
+ router.get("/api/type-conge", AuthMiddleware, GetTypeConges);
 
 /**
  * @swagger
@@ -1300,7 +1327,7 @@ router.put("/api/statut/:id", UpdateStatut);
  *              $ref: '#/components/schemas/TypeCongeNotFound'
  */
 
- router.get("/api/type-conge/:id", GetTypeCongeById);
+ router.get("/api/type-conge/:id", AuthMiddleware, GetTypeCongeById);
 
 
  /**
@@ -1333,7 +1360,7 @@ router.put("/api/statut/:id", UpdateStatut);
  *
  */
 
-  router.put("/api/type-conge/:id", UpdateTypeConge);
+  router.put("/api/type-conge/:id", AuthMiddleware, UpdateTypeConge);
 
 /**
  * @swagger
@@ -1359,7 +1386,7 @@ router.put("/api/statut/:id", UpdateStatut);
  *
  */
 
- router.delete("/api/type-conge/:id", DeleteTypeConge)
+ router.delete("/api/type-conge/:id", AuthMiddleware, DeleteTypeConge)
 
 // =============================== FIN ROUTES TYPE CONGE =============================
 
@@ -1444,7 +1471,7 @@ router.put("/api/statut/:id", UpdateStatut);
  *
  */
 
- router.post("/api/type-contrat", AddTypeContrat);
+ router.post("/api/type-contrat", AuthMiddleware, AddTypeContrat);
 
 
 /**
@@ -1470,7 +1497,7 @@ router.put("/api/statut/:id", UpdateStatut);
  *                $ref: '#/components/schemas/TypeContratNotFound'
  */
 
- router.get("/api/type-contrat", GetTypeContrats);
+ router.get("/api/type-contrat", AuthMiddleware, GetTypeContrats);
 
 /**
  * @swagger
@@ -1495,7 +1522,7 @@ router.put("/api/statut/:id", UpdateStatut);
  *              $ref: '#/components/schemas/TypeContratNotFound'
  */
 
- router.get("/api/type-contrat/:id", GetTypeContratById);
+ router.get("/api/type-contrat/:id", AuthMiddleware, GetTypeContratById);
 
 
  /**
@@ -1528,7 +1555,7 @@ router.put("/api/statut/:id", UpdateStatut);
  *
  */
 
-  router.put("/api/type-contrat/:id", UpdateTypeContrat);
+  router.put("/api/type-contrat/:id", AuthMiddleware, UpdateTypeContrat);
 
 /**
  * @swagger
@@ -1554,7 +1581,7 @@ router.put("/api/statut/:id", UpdateStatut);
  *
  */
 
- router.delete("/api/type-contrat/:id", DeleteTypeContrat)
+ router.delete("/api/type-contrat/:id", AuthMiddleware, DeleteTypeContrat)
 
 // =============================== FIN ROUTES TYPE CONTRAT =============================
 
@@ -1639,7 +1666,7 @@ router.put("/api/statut/:id", UpdateStatut);
  *
  */
 
- router.post("/api/type-demande", AddTypeDemande);
+ router.post("/api/type-demande", AuthMiddleware, AddTypeDemande);
 
 
 /**
@@ -1665,7 +1692,7 @@ router.put("/api/statut/:id", UpdateStatut);
  *                $ref: '#/components/schemas/TypeDemandeNotFound'
  */
 
- router.get("/api/type-demande", GetTypeDemandes);
+ router.get("/api/type-demande", AuthMiddleware, GetTypeDemandes);
 
 /**
  * @swagger
@@ -1690,7 +1717,7 @@ router.put("/api/statut/:id", UpdateStatut);
  *              $ref: '#/components/schemas/TypeDemandeNotFound'
  */
 
- router.get("/api/type-demande/:id", GetTypeDemandeById);
+ router.get("/api/type-demande/:id", AuthMiddleware, GetTypeDemandeById);
 
 
  /**
@@ -1723,7 +1750,7 @@ router.put("/api/statut/:id", UpdateStatut);
  *
  */
 
-  router.put("/api/type-demande/:id", UpdateTypeDemande);
+  router.put("/api/type-demande/:id", AuthMiddleware, UpdateTypeDemande);
 
 /**
  * @swagger
@@ -1749,7 +1776,7 @@ router.put("/api/statut/:id", UpdateStatut);
  *
  */
 
- router.delete("/api/type-demande/:id", DeleteTypeDemande)
+ router.delete("/api/type-demande/:id", AuthMiddleware, DeleteTypeDemande)
 
 // =============================== FIN ROUTES TYPE DEMANDE =============================
 
@@ -1852,7 +1879,7 @@ router.post("/api/pays", AddPays);
  *        description: Some server error
  *
  */
- router.post("/api/access", AddAccess);
+ router.post("/api/access", AuthMiddleware, AddAccess);
 
 /**
  * @swagger
@@ -1877,7 +1904,7 @@ router.post("/api/pays", AddPays);
  *                $ref: '#/components/schemas/AccessNotFound'
  */
 
- router.get("/api/access", GetAccess);
+ router.get("/api/access", AuthMiddleware, GetAccess);
 
  /**
  * @swagger
@@ -1902,7 +1929,7 @@ router.post("/api/pays", AddPays);
  *              $ref: '#/components/schemas/AccessNotFound'
 */
 
-router.get("/api/access/:id", GetAccessById);
+router.get("/api/access/:id", AuthMiddleware, GetAccessById);
 
 /**
  * @swagger
@@ -1934,7 +1961,7 @@ router.get("/api/access/:id", GetAccessById);
  *
  */
 
- router.put("/api/access/:id", UpdateAccess);
+ router.put("/api/access/:id", AuthMiddleware, UpdateAccess);
 
  /**
  * @swagger
@@ -1960,7 +1987,7 @@ router.get("/api/access/:id", GetAccessById);
  *
 */
 
-router.delete("/api/access/:id", DeleteAccess);
+router.delete("/api/access/:id", AuthMiddleware, DeleteAccess);
 
 // ================================= FIN ROUTES ACCESS =========================
 
@@ -2068,7 +2095,7 @@ router.delete("/api/access/:id", DeleteAccess);
  *        description: Some server error
  *
  */
- router.post("/api/experience-professionnelle", AddExperience);
+ router.post("/api/experience-professionnelle", AuthMiddleware, AddExperience);
 
 /**
  * @swagger
@@ -2093,7 +2120,7 @@ router.delete("/api/access/:id", DeleteAccess);
  *                $ref: '#/components/schemas/ExperienceNotFound'
  */
 
- router.get("/api/experience-professionnelle", GetExperiences);
+ router.get("/api/experience-professionnelle", AuthMiddleware, GetExperiences);
 
  /**
  * @swagger
@@ -2118,7 +2145,7 @@ router.delete("/api/access/:id", DeleteAccess);
  *              $ref: '#/components/schemas/ExperienceNotFound'
 */
 
-router.get("/api/experience-professionnelle/:id", GetExperienceById);
+router.get("/api/experience-professionnelle/:id", AuthMiddleware, GetExperienceById);
 
 /**
  * @swagger
@@ -2150,7 +2177,7 @@ router.get("/api/experience-professionnelle/:id", GetExperienceById);
  *
  */
 
- router.put("/api/experience-professionnelle/:id", UpdateExperience);
+ router.put("/api/experience-professionnelle/:id", AuthMiddleware, UpdateExperience);
 
  /**
  * @swagger
@@ -2176,7 +2203,7 @@ router.get("/api/experience-professionnelle/:id", GetExperienceById);
  *
 */
 
-router.delete("/api/experience-professionnelle/:id", DeleteExperience);
+router.delete("/api/experience-professionnelle/:id", AuthMiddleware, DeleteExperience);
 
 // ================================= FIN ROUTES EXPERIENCE PROFESSIONNELLE =========================
 
@@ -2275,7 +2302,7 @@ router.delete("/api/experience-professionnelle/:id", DeleteExperience);
  *        description: Some server error
  *
  */
- router.post("/api/etude-faites", AddEtudeFaites);
+ router.post("/api/etude-faites", AuthMiddleware, AddEtudeFaites);
 
 /**
  * @swagger
@@ -2300,7 +2327,7 @@ router.delete("/api/experience-professionnelle/:id", DeleteExperience);
  *                $ref: '#/components/schemas/EtudeFaitesNotFound'
  */
 
- router.get("/api/etude-faites", GetEtudeFaites);
+ router.get("/api/etude-faites", AuthMiddleware, GetEtudeFaites);
 
  /**
  * @swagger
@@ -2325,7 +2352,7 @@ router.delete("/api/experience-professionnelle/:id", DeleteExperience);
  *              $ref: '#/components/schemas/EtudeFaitesNotFound'
 */
 
-router.get("/api/etude-faites/:id", GetEtudeFaitesById);
+router.get("/api/etude-faites/:id", AuthMiddleware, GetEtudeFaitesById);
 
 /**
  * @swagger
@@ -2357,7 +2384,7 @@ router.get("/api/etude-faites/:id", GetEtudeFaitesById);
  *
  */
 
- router.put("/api/etude-faites/:id", UpdateEtudeFaites);
+ router.put("/api/etude-faites/:id", AuthMiddleware, UpdateEtudeFaites);
 
  /**
  * @swagger
@@ -2383,7 +2410,7 @@ router.get("/api/etude-faites/:id", GetEtudeFaitesById);
  *
 */
 
-router.delete("/api/etude-faites/:id", DeleteEtudeFaites);
+router.delete("/api/etude-faites/:id", AuthMiddleware, DeleteEtudeFaites);
 
 // ================================= FIN ROUTES ETUDE FAITES =========================
 
@@ -2417,7 +2444,6 @@ router.delete("/api/etude-faites/:id", DeleteEtudeFaites);
  *  
  *      required:
  *        - nom
- *        - departement_hierarchique
  *        
  *      example:
  *        nom: Juridique
@@ -2472,7 +2498,7 @@ router.delete("/api/etude-faites/:id", DeleteEtudeFaites);
  *        description: Some server error
  *
  */
- router.post("/api/departement", AddDepartement);
+ router.post("/api/departement", AuthMiddleware, AddDepartement);
 
 /**
  * @swagger
@@ -2497,7 +2523,7 @@ router.delete("/api/etude-faites/:id", DeleteEtudeFaites);
  *                $ref: '#/components/schemas/DepartementNotFound'
  */
 
- router.get("/api/departement", GetDepartements);
+ router.get("/api/departement", AuthMiddleware, GetDepartements);
 
  /**
  * @swagger
@@ -2522,7 +2548,7 @@ router.delete("/api/etude-faites/:id", DeleteEtudeFaites);
  *              $ref: '#/components/schemas/DepartementNotFound'
 */
 
-router.get("/api/departement/:id", GetDepartementById);
+router.get("/api/departement/:id", AuthMiddleware, GetDepartementById);
 
 /**
  * @swagger
@@ -2554,7 +2580,7 @@ router.get("/api/departement/:id", GetDepartementById);
  *
  */
 
- router.put("/api/departement/:id", UpdateDepartement);
+ router.put("/api/departement/:id", AuthMiddleware, UpdateDepartement);
 
  /**
  * @swagger
@@ -2580,7 +2606,7 @@ router.get("/api/departement/:id", GetDepartementById);
  *
 */
 
-router.delete("/api/departement/:id", DeleteDepartement);
+router.delete("/api/departement/:id", AuthMiddleware, DeleteDepartement);
 
 // ================================= FIN ROUTES DEPARTEMENT =========================
 
@@ -2683,7 +2709,7 @@ router.delete("/api/departement/:id", DeleteDepartement);
  *        description: Some server error
  *
  */
- router.post("/api/poste", AddPoste);
+ router.post("/api/poste", AuthMiddleware, AddPoste);
 
 /**
  * @swagger
@@ -2708,7 +2734,7 @@ router.delete("/api/departement/:id", DeleteDepartement);
  *                $ref: '#/components/schemas/PosteNotFound'
  */
 
- router.get("/api/poste", GetPostes);
+ router.get("/api/poste", AuthMiddleware, GetPostes);
 
  /**
  * @swagger
@@ -2733,7 +2759,7 @@ router.delete("/api/departement/:id", DeleteDepartement);
  *              $ref: '#/components/schemas/PosteNotFound'
 */
 
-router.get("/api/poste/:id", GetPosteById);
+router.get("/api/poste/:id", AuthMiddleware, GetPosteById);
 
 /**
  * @swagger
@@ -2765,7 +2791,7 @@ router.get("/api/poste/:id", GetPosteById);
  *
  */
 
- router.put("/api/poste/:id", UpdatePoste);
+ router.put("/api/poste/:id", AuthMiddleware, UpdatePoste);
 
  /**
  * @swagger
@@ -2791,7 +2817,7 @@ router.get("/api/poste/:id", GetPosteById);
  *
 */
 
-router.delete("/api/poste/:id", DeletePoste);
+router.delete("/api/poste/:id", AuthMiddleware, DeletePoste);
 
 // ================================= FIN ROUTES POSTE =========================
 
@@ -2877,7 +2903,7 @@ router.delete("/api/poste/:id", DeletePoste);
  *        description: Some server error
  *
  */
- router.post("/api/role", AddRole);
+ router.post("/api/role", AuthMiddleware, AddRole);
 
 /**
  * @swagger
@@ -2902,7 +2928,7 @@ router.delete("/api/poste/:id", DeletePoste);
  *                $ref: '#/components/schemas/RoleNotFound'
  */
 
- router.get("/api/role", GetRoles);
+ router.get("/api/role", AuthMiddleware, GetRoles);
 
  /**
  * @swagger
@@ -2927,7 +2953,7 @@ router.delete("/api/poste/:id", DeletePoste);
  *              $ref: '#/components/schemas/RoleNotFound'
 */
 
-router.get("/api/role/:id", GetRoleById);
+router.get("/api/role/:id", AuthMiddleware, GetRoleById);
 
 /**
  * @swagger
@@ -2959,7 +2985,7 @@ router.get("/api/role/:id", GetRoleById);
  *
  */
 
- router.put("/api/role/:id", UpdateRole);
+ router.put("/api/role/:id", AuthMiddleware, UpdateRole);
 
  /**
  * @swagger
@@ -2985,7 +3011,7 @@ router.get("/api/role/:id", GetRoleById);
  *
 */
 
-router.delete("/api/role/:id", DeleteRole);
+router.delete("/api/role/:id", AuthMiddleware, DeleteRole);
 
 // ================================= FIN ROUTES ROLE =========================
 
@@ -3134,7 +3160,7 @@ router.delete("/api/role/:id", DeleteRole);
  *        description: Some server error
  *
  */
- router.post("/api/agent", AddAgent);
+ router.post("/api/agent", AuthMiddleware, AddAgent);
 
 /**
  * @swagger
@@ -3159,7 +3185,7 @@ router.delete("/api/role/:id", DeleteRole);
  *                $ref: '#/components/schemas/AgentNotFound'
  */
 
- router.get("/api/agent", GetAgents);
+ router.get("/api/agent", AuthMiddleware, GetAgents);
 
  /**
  * @swagger
@@ -3184,7 +3210,7 @@ router.delete("/api/role/:id", DeleteRole);
  *              $ref: '#/components/schemas/AgentNotFound'
 */
 
-router.get("/api/agent/:id", GetAgentById);
+router.get("/api/agent/:id", AuthMiddleware, GetAgentById);
 
 /**
  * @swagger
@@ -3216,7 +3242,7 @@ router.get("/api/agent/:id", GetAgentById);
  *
  */
 
- router.put("/api/agent/:id", UpdateAgent);
+ router.put("/api/agent/:id", AuthMiddleware, UpdateAgent);
 
  /**
  * @swagger
@@ -3242,7 +3268,7 @@ router.get("/api/agent/:id", GetAgentById);
  *
 */
 
-router.delete("/api/agent/:id", DeleteAgent);
+router.delete("/api/agent/:id", AuthMiddleware, DeleteAgent);
 
 // ================================= FIN ROUTES AGENT =========================
 
@@ -3339,7 +3365,7 @@ router.delete("/api/agent/:id", DeleteAgent);
  *        description: Some server error
  *
  */
- router.post("/api/demande", AddDemande);
+ router.post("/api/demande", AuthMiddleware, AddDemande);
 
 /**
  * @swagger
@@ -3364,7 +3390,7 @@ router.delete("/api/agent/:id", DeleteAgent);
  *                $ref: '#/components/schemas/DemandeNotFound'
  */
 
- router.get("/api/demande", GetDemandes);
+ router.get("/api/demande", AuthMiddleware, GetDemandes);
 
  /**
  * @swagger
@@ -3389,7 +3415,7 @@ router.delete("/api/agent/:id", DeleteAgent);
  *              $ref: '#/components/schemas/DemandeNotFound'
 */
 
-router.get("/api/demande/:id", GetDemandeById);
+router.get("/api/demande/:id", AuthMiddleware, GetDemandeById);
 
 /**
  * @swagger
@@ -3421,7 +3447,7 @@ router.get("/api/demande/:id", GetDemandeById);
  *
  */
 
- router.put("/api/demande/:id", UpdateDemande);
+ router.put("/api/demande/:id", AuthMiddleware, UpdateDemande);
 
  /**
  * @swagger
@@ -3447,7 +3473,7 @@ router.get("/api/demande/:id", GetDemandeById);
  *
 */
 
-router.delete("/api/demande/:id", DeleteDemande);
+router.delete("/api/demande/:id", AuthMiddleware, DeleteDemande);
 
 // ================================= FIN ROUTES DEMANDE =========================
 
@@ -3554,7 +3580,7 @@ router.delete("/api/demande/:id", DeleteDemande);
  *        description: Some server error
  *
  */
- router.post("/api/note-frais", AddNoteFrais);
+ router.post("/api/note-frais", AuthMiddleware, AddNoteFrais);
 
 /**
  * @swagger
@@ -3579,7 +3605,7 @@ router.delete("/api/demande/:id", DeleteDemande);
  *                $ref: '#/components/schemas/NoteFraisNotFound'
  */
 
- router.get("/api/note-frais", GetNoteFrais);
+ router.get("/api/note-frais", AuthMiddleware, GetNoteFrais);
 
  /**
  * @swagger
@@ -3604,7 +3630,7 @@ router.delete("/api/demande/:id", DeleteDemande);
  *              $ref: '#/components/schemas/NoteFraisNotFound'
 */
 
-router.get("/api/note-frais/:id", GetNoteFraisById);
+router.get("/api/note-frais/:id", AuthMiddleware, GetNoteFraisById);
 
 /**
  * @swagger
@@ -3636,7 +3662,7 @@ router.get("/api/note-frais/:id", GetNoteFraisById);
  *
  */
 
- router.put("/api/note-frais/:id", UpdateNoteFrais);
+ router.put("/api/note-frais/:id", AuthMiddleware, UpdateNoteFrais);
 
  /**
  * @swagger
@@ -3662,7 +3688,7 @@ router.get("/api/note-frais/:id", GetNoteFraisById);
  *
 */
 
-router.delete("/api/note-frais/:id", DeleteNoteFrais);
+router.delete("/api/note-frais/:id", AuthMiddleware, DeleteNoteFrais);
 
 // ================================= FIN ROUTES NOTE DE FRAIS =========================
 
@@ -3751,7 +3777,7 @@ router.delete("/api/note-frais/:id", DeleteNoteFrais);
  *        description: Some server error
  *
  */
- router.post("/api/presence", AddPresence);
+ router.post("/api/presence", AuthMiddleware, AddPresence);
 
 /**
  * @swagger
@@ -3776,7 +3802,7 @@ router.delete("/api/note-frais/:id", DeleteNoteFrais);
  *                $ref: '#/components/schemas/PresenceNotFound'
  */
 
- router.get("/api/presence", GetPresences);
+ router.get("/api/presence", AuthMiddleware, GetPresences);
 
  /**
  * @swagger
@@ -3801,7 +3827,7 @@ router.delete("/api/note-frais/:id", DeleteNoteFrais);
  *              $ref: '#/components/schemas/PresenceNotFound'
 */
 
-router.get("/api/presence/:id", GetPresenceById);
+router.get("/api/presence/:id", AuthMiddleware, GetPresenceById);
 
 /**
  * @swagger
@@ -3833,7 +3859,7 @@ router.get("/api/presence/:id", GetPresenceById);
  *
  */
 
- router.put("/api/presence/:id", UpdatePresence);
+ router.put("/api/presence/:id", AuthMiddleware, UpdatePresence);
 
  /**
  * @swagger
@@ -3859,7 +3885,7 @@ router.get("/api/presence/:id", GetPresenceById);
  *
 */
 
-router.delete("/api/presence/:id", DeletePresence);
+router.delete("/api/presence/:id", AuthMiddleware, DeletePresence);
 
 // ================================= FIN ROUTES PRESENCE =========================
 
@@ -3992,7 +4018,7 @@ router.delete("/api/presence/:id", DeletePresence);
  *        description: Some server error
  *
  */
- router.post("/api/fiche-paie", AddFichePaie);
+ router.post("/api/fiche-paie", AuthMiddleware, AddFichePaie);
 
 /**
  * @swagger
@@ -4017,7 +4043,7 @@ router.delete("/api/presence/:id", DeletePresence);
  *                $ref: '#/components/schemas/FichePaieNotFound'
  */
 
- router.get("/api/fiche-paie", GetFichePaies);
+ router.get("/api/fiche-paie", AuthMiddleware, GetFichePaies);
 
  /**
  * @swagger
@@ -4042,7 +4068,7 @@ router.delete("/api/presence/:id", DeletePresence);
  *              $ref: '#/components/schemas/FichePaieNotFound'
 */
 
-router.get("/api/fiche-paie/:id", GetFichePaieById);
+router.get("/api/fiche-paie/:id", AuthMiddleware, GetFichePaieById);
 
 /**
  * @swagger
@@ -4074,7 +4100,7 @@ router.get("/api/fiche-paie/:id", GetFichePaieById);
  *
  */
 
- router.put("/api/fiche-paie/:id", UpdateFichePaie);
+ router.put("/api/fiche-paie/:id", AuthMiddleware, UpdateFichePaie);
 
  /**
  * @swagger
@@ -4100,7 +4126,7 @@ router.get("/api/fiche-paie/:id", GetFichePaieById);
  *
 */
 
-router.delete("/api/fiche-paie/:id", DeleteFichePaie);
+router.delete("/api/fiche-paie/:id", AuthMiddleware, DeleteFichePaie);
 
 // ================================= FIN ROUTES FICHE PAIE =========================
 
@@ -4215,7 +4241,7 @@ router.delete("/api/fiche-paie/:id", DeleteFichePaie);
  *        description: Some server error
  *
  */
- router.post("/api/contrat", AddContrat);
+ router.post("/api/contrat", AuthMiddleware, AddContrat);
 
 /**
  * @swagger
@@ -4240,7 +4266,7 @@ router.delete("/api/fiche-paie/:id", DeleteFichePaie);
  *                $ref: '#/components/schemas/ContratNotFound'
  */
 
- router.get("/api/contrat", GetContrats);
+ router.get("/api/contrat", AuthMiddleware, GetContrats);
 
  /**
  * @swagger
@@ -4265,7 +4291,7 @@ router.delete("/api/fiche-paie/:id", DeleteFichePaie);
  *              $ref: '#/components/schemas/ContratNotFound'
 */
 
-router.get("/api/contrat/:id", GetContratById);
+router.get("/api/contrat/:id", AuthMiddleware, GetContratById);
 
 /**
  * @swagger
@@ -4297,7 +4323,7 @@ router.get("/api/contrat/:id", GetContratById);
  *
  */
 
- router.put("/api/contrat/:id", UpdateContrat);
+ router.put("/api/contrat/:id", AuthMiddleware, UpdateContrat);
 
  /**
  * @swagger
@@ -4323,7 +4349,7 @@ router.get("/api/contrat/:id", GetContratById);
  *
 */
 
-router.delete("/api/contrat/:id", DeleteContrat);
+router.delete("/api/contrat/:id", AuthMiddleware, DeleteContrat);
 
 // ================================= FIN ROUTES CONTRAT =========================
 
@@ -4419,7 +4445,7 @@ router.delete("/api/contrat/:id", DeleteContrat);
  *        description: Some server error
  *
  */
- router.post("/api/conge", AddConge);
+ router.post("/api/conge", AuthMiddleware, AddConge);
 
 /**
  * @swagger
@@ -4444,7 +4470,7 @@ router.delete("/api/contrat/:id", DeleteContrat);
  *                $ref: '#/components/schemas/CongeNotFound'
  */
 
- router.get("/api/conge", GetConges);
+ router.get("/api/conge", AuthMiddleware, GetConges);
 
  /**
  * @swagger
@@ -4469,7 +4495,7 @@ router.delete("/api/contrat/:id", DeleteContrat);
  *              $ref: '#/components/schemas/CongeNotFound'
 */
 
-router.get("/api/conge/:id", GetCongeById);
+router.get("/api/conge/:id", AuthMiddleware, GetCongeById);
 
 /**
  * @swagger
@@ -4501,7 +4527,7 @@ router.get("/api/conge/:id", GetCongeById);
  *
  */
 
- router.put("/api/conge/:id", UpdateConge);
+ router.put("/api/conge/:id", AuthMiddleware, UpdateConge);
 
  /**
  * @swagger
@@ -4527,7 +4553,7 @@ router.get("/api/conge/:id", GetCongeById);
  *
 */
 
-router.delete("/api/conge/:id", DeleteConge);
+router.delete("/api/conge/:id", AuthMiddleware, DeleteConge);
 
 // ================================= FIN ROUTES CONGE =========================
 
@@ -4607,7 +4633,7 @@ router.delete("/api/conge/:id", DeleteConge);
  *        description: Some server error
  *
  */
- router.post("/api/langue", AddLangue);
+ router.post("/api/langue", AuthMiddleware, AddLangue);
 
 /**
  * @swagger
@@ -4632,7 +4658,7 @@ router.delete("/api/conge/:id", DeleteConge);
  *                $ref: '#/components/schemas/LangueNotFound'
  */
 
- router.get("/api/langue", GetLangues);
+ router.get("/api/langue", AuthMiddleware, GetLangues);
 
  /**
  * @swagger
@@ -4657,7 +4683,7 @@ router.delete("/api/conge/:id", DeleteConge);
  *              $ref: '#/components/schemas/LangueNotFound'
 */
 
-router.get("/api/langue/:id", GetLangueById);
+router.get("/api/langue/:id", AuthMiddleware, GetLangueById);
 
 /**
  * @swagger
@@ -4689,7 +4715,7 @@ router.get("/api/langue/:id", GetLangueById);
  *
  */
 
- router.put("/api/langue/:id", UpdateLangue);
+ router.put("/api/langue/:id", AuthMiddleware, UpdateLangue);
 
  /**
  * @swagger
@@ -4715,7 +4741,7 @@ router.get("/api/langue/:id", GetLangueById);
  *
 */
 
-router.delete("/api/langue/:id", DeleteLangue);
+router.delete("/api/langue/:id", AuthMiddleware, DeleteLangue);
 
 // ================================= FIN ROUTES LANGUE =========================
 
@@ -4936,7 +4962,7 @@ router.delete("/api/langue/:id", DeleteLangue);
  *        description: Some server error
  *
  */
- router.post("/api/candidat", AddCandidat);
+ router.post("/api/candidat", AuthMiddleware, AddCandidat);
 
 /**
  * @swagger
@@ -4961,7 +4987,7 @@ router.delete("/api/langue/:id", DeleteLangue);
  *                $ref: '#/components/schemas/CandidatNotFound'
  */
 
- router.get("/api/candidat", GetCandidats);
+ router.get("/api/candidat", AuthMiddleware, GetCandidats);
 
  /**
  * @swagger
@@ -4986,7 +5012,7 @@ router.delete("/api/langue/:id", DeleteLangue);
  *              $ref: '#/components/schemas/CandidatNotFound'
 */
 
-router.get("/api/candidat/:id", GetCandidatById);
+router.get("/api/candidat/:id", AuthMiddleware, GetCandidatById);
 
 /**
  * @swagger
@@ -5018,7 +5044,7 @@ router.get("/api/candidat/:id", GetCandidatById);
  *
  */
 
- router.put("/api/candidat/:id", UpdateCandidat);
+ router.put("/api/candidat/:id", AuthMiddleware, UpdateCandidat);
 
  /**
  * @swagger
@@ -5044,7 +5070,7 @@ router.get("/api/candidat/:id", GetCandidatById);
  *
 */
 
-router.delete("/api/candidat/:id", DeleteCandidat);
+router.delete("/api/candidat/:id", AuthMiddleware, DeleteCandidat);
 
 // ================================= FIN ROUTES CANDIDAT =========================
 
@@ -5161,7 +5187,7 @@ router.delete("/api/candidat/:id", DeleteCandidat);
  *        description: Some server error
  *
  */
- router.post("/api/recrutement", AddRecrutement);
+ router.post("/api/recrutement", AuthMiddleware, AddRecrutement);
 
 /**
  * @swagger
@@ -5186,7 +5212,7 @@ router.delete("/api/candidat/:id", DeleteCandidat);
  *                $ref: '#/components/schemas/RecrutementNotFound'
  */
 
- router.get("/api/recrutement", GetRecrutements);
+ router.get("/api/recrutement", AuthMiddleware, GetRecrutements);
 
  /**
  * @swagger
@@ -5211,7 +5237,7 @@ router.delete("/api/candidat/:id", DeleteCandidat);
  *              $ref: '#/components/schemas/RecrutementNotFound'
 */
 
-router.get("/api/recrutement/:id", GetRecrutementById);
+router.get("/api/recrutement/:id", AuthMiddleware, GetRecrutementById);
 
 /**
  * @swagger
@@ -5243,7 +5269,7 @@ router.get("/api/recrutement/:id", GetRecrutementById);
  *
  */
 
- router.put("/api/recrutement/:id", UpdateRecrutement);
+ router.put("/api/recrutement/:id", AuthMiddleware, UpdateRecrutement);
 
  /**
  * @swagger
@@ -5269,7 +5295,7 @@ router.get("/api/recrutement/:id", GetRecrutementById);
  *
 */
 
-router.delete("/api/recrutement/:id", DeleteRecrutement);
+router.delete("/api/recrutement/:id", AuthMiddleware, DeleteRecrutement);
 
 // ================================= FIN ROUTES RECRUTEMENT =========================
 
@@ -5338,7 +5364,31 @@ router.delete("/api/recrutement/:id", DeleteRecrutement);
  */
  router.post("/api/agent/login", Login);
 
+ /**
+ * @swagger
+ * /api/user:
+ *  get:
+ *    summary: Returns an authenticated user
+ *    tags: [Login]
+ *    responses:
+ *      200:
+ *        description: User authenticated
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: array
+ *              items:
+ *                $ref: '#/components/schemas/Login'
+ *        404:
+ *          description: the user is not authenticated
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/LoginNotFound'
+ */
+  router.get("/api/user", AuthMiddleware, AuthenticatedUser);
 
 // ================================= FIN ROUTES LOGIN =========================
+
 
 export default router;
