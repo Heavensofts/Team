@@ -15,7 +15,7 @@ import { AddGenre, DeleteGenre, GetGenreById, GetGenres, UpdateGenre } from "../
 import { AddLangue, DeleteLangue, GetLangueById, GetLangues, UpdateLangue } from "../controllers/langue.controller";
 import { AddNiveauEtude, DeleteNiveauEtude, GetNiveauById, GetNiveauEtudes, UpdateNiveauEtude } from "../controllers/niveau_etude.controller";
 import { AddNoteFrais, DeleteNoteFrais, GetNoteFrais, GetNoteFraisById, UpdateNoteFrais } from "../controllers/note_frais.controller";
-import { AddPays } from "../controllers/pays.controller";
+import { AddPays, GetPays } from "../controllers/pays.controller";
 import { AddPoste, DeletePoste, GetPosteById, GetPostes, UpdatePoste } from "../controllers/poste.controller";
 import { AddPresence, DeletePresence, GetPresenceById, GetPresences, UpdatePresence } from "../controllers/presence.controller";
 import { AddRecrutement, DeleteRecrutement, GetRecrutementById, GetRecrutements, UpdateRecrutement } from "../controllers/recrutement.controller";
@@ -1783,6 +1783,77 @@ router.put("/api/statut/:id",UpdateStatut);
 // =============================== DEBUT ROUTES Pays =========================
 
 // pays routes
+
+/**
+ * @swagger
+ * components:
+ *  schemas:
+ *    Pays:
+ *      type: object
+ *      properties:
+ *        nom:
+ *          type: string
+ *          description: le nom du pays
+ *        code:
+ *          type: string
+ *          description: le code du pays
+ *      required:
+ *        - nom
+ *        - code
+ *    PaysNotFound:
+ *      type: object
+ *      properties:
+ *        msg:
+ *          type: string
+ *          description: A message for the not found pays
+ *      example:
+ *        msg: Pays non correspondante
+ *
+ *  parameters:
+ *    PaysId:
+ *      in: path
+ *      name: id
+ *      required: true
+ *      schema:
+ *        type: string
+ *      description: the pays id
+ *   
+ */
+
+/**
+ * @swagger
+ * tags:
+ *  name: Pays
+ *  description: Pays endpoint
+*/
+
+
+/**
+ * @swagger
+ * /api/pays:
+ *  get:
+ *    summary: Returns a list of pays
+ *    tags: [Pays]
+ *    responses:
+ *      200:
+ *        description: the list of pays
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: array
+ *              items:
+ *                $ref: '#/components/schemas/Pays'
+ *        404:
+ *          description: the pays was not found
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/PaysNotFound'
+ */
+
+ router.get("/api/pays", GetPays);
+
+
 router.post("/api/pays", AddPays);
 
 // ======================== END Pays routes ===================================

@@ -30,3 +30,21 @@ export const AddPays: Handler = async (req: Request, res: Response) =>{
   }
 
 }
+
+export const GetPays: Handler = async (req: Request, res: Response) => {
+
+  await PaysEntity.find()
+    .then((pays) => {
+      if (!pays) {
+        return res
+          .status(404)
+          .send({ errorMessage: "Aucun pays trouvé" });
+      }
+      res.status(200).send(pays);
+    })
+    .catch((error) => {
+      return res.status(500).send({
+        errorMessage: "Une erreur s'est produite, veuillez réessayer",
+      });
+    });
+};
