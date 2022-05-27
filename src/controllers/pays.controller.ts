@@ -33,9 +33,10 @@ export const AddPays: Handler = async (req: Request, res: Response) =>{
 
 export const GetPays: Handler = async (req: Request, res: Response) => {
 
-  PaysEntity.find().sort({nom: 1}).exec((err, pays)=> {
+  PaysEntity.find().sort('nom').exec((err, pays)=> {
     
-    if (!err) {
+    if (err) {
+      console.log("err: ", err)
       return res
         .status(500)
         .send({ errorMessage: "Une erreur s'est produite, veuillez réessayer" });
