@@ -5457,7 +5457,7 @@ router.delete("/api/recrutement/:id", DeleteRecrutement);
  *              schema:
  *                $ref: '#/components/schemas/LoginNotFound'
  */
-  router.get("/api/user", AuthenticatedUser);
+  router.get("/api/user", AuthMiddleware, AuthenticatedUser);
 
 // ================================= FIN ROUTES LOGIN =========================
 
