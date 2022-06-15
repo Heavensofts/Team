@@ -28,7 +28,7 @@ mongoose
     app.use(express.urlencoded({ extended: true }));
     app.use(
       cors({
-        origin: "https://front-myteam.herokuapp.com",
+        origin: "*",
         credentials: true,
       })
     );
@@ -37,7 +37,7 @@ mongoose
     app.use(fileUpload());
 
     app.use((req: Request, res: Response, next) => {
-      res.setHeader("Access-Control-Allow-Origin", "https://front-myteam.herokuapp.com/");
+      res.setHeader("Access-Control-Allow-Origin", "*");
       res.header(
         "Access-Control-Allow-Headers",
         "X-Requested-With,content-type, Accept"
