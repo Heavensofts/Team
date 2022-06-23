@@ -3,8 +3,8 @@ import { model, Schema, Model, Document } from 'mongoose';
 interface ITypeAccess extends Document{
   nom: string;
   description?: string;
-  statut_deleted: string;
-  date_deleted?: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const TypeAccessSchema = new Schema({
@@ -20,18 +20,6 @@ const TypeAccessSchema = new Schema({
     type: String,
     required: false
   },
-
-  date_deleted: {
-    type: Date,
-    required: false
-  },
-
-  statut_deleted: {
-    type: Schema.Types.String,
-    required: true,
-    ref: "Status",
-  }
-
 }, {timestamps: true});
 
 export const TypeAccessEntity: Model<ITypeAccess> = model('TypeAccess', TypeAccessSchema);

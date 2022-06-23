@@ -1,7 +1,8 @@
 import { Request, Response, Handler } from "express";
 import mongoose from "mongoose";
 import { DepartementEntity } from "../entity/departement.entity";
-import { StatusEntity } from "../entity/status.entity";
+import { AgentEntity } from "../entity/agent.entity";
+
 
 export const AddDepartement: Handler = async (req: Request, res: Response) => {
   const { nom, departement_hierarchique, directeur, directeur_adjoint} = req.body;
@@ -16,38 +17,27 @@ export const AddDepartement: Handler = async (req: Request, res: Response) => {
       .send({ errorMessage: "Veuillez remplir les champ requis" });
   }
 
-  let checkStatut = await StatusEntity.findOne({ nom: "Displayed" });
+  if (!mongoose.Types.ObjectId.isValid(directeur)) {
+    return res.status(400).send({ errorMessage: "Id directeur non valide" });
+  }
 
-  if (!checkStatut) {
+  const checkDirecteur = await AgentEntity.findById(directeur);
 
-    const myStatut = new StatusEntity({
-      nom: 'Displayed', description: "Le statut qui rend les éléments visibles", type_statut: 0
-    });
-
-    await myStatut.save().then((result) => {
-      checkStatut = result;
-    }).catch((error) => {
-      return res.status(500).send({
-        errorMessage: "Une erreur s'est produite, veuillez réessayer",
-      });
+  if (!checkDirecteur) {
+    return res.status(404).send({
+      errorMessage: "Aucun directeur correspondant",
     });
   }
 
-  let checkStatut2 = await StatusEntity.findOne({nom: 'No-displayed'});
-  if(!checkStatut2){
-    const myStatut = new StatusEntity({
-      nom: 'No-displayed', 
-      description: "Le statut qui rend les éléments invisibles", 
-      type_statut: 0
-    });
-  
-    await myStatut.save().then((result) => {
-      checkStatut = result;
-    }).catch((error) => {
-      console.log(error.message);
-      return res.status(500).send({
-        errorMessage: "Une erreur s'est produite, veuillez réessayer",
-      });
+  if (!mongoose.Types.ObjectId.isValid(directeur_adjoint)) {
+    return res.status(400).send({ errorMessage: "Id directeur adjoint non valide" });
+  }
+
+  const checkDirecteurAdjoint = await AgentEntity.findById(directeur_adjoint);
+
+  if (!checkDirecteurAdjoint) {
+    return res.status(404).send({
+      errorMessage: "Aucun directeur adjoint correspondant",
     });
   }
 
@@ -58,9 +48,8 @@ export const AddDepartement: Handler = async (req: Request, res: Response) => {
     const departement = new DepartementEntity({
       nom: nom.toUpperCase(), 
       departement_hierarchique,
-      directeur,
-      directeur_adjoint,
-      statut_deleted: checkStatut.nom
+      directeur: checkDirecteur._id,
+      directeur_adjoint: checkDirecteurAdjoint._id
     });
   
     await departement
@@ -84,20 +73,70 @@ export const AddDepartement: Handler = async (req: Request, res: Response) => {
 
 export const GetDepartements: Handler = async (req: Request, res: Response) => {
 
-  const checkStatut = await StatusEntity.findOne({nom: 'Displayed'});
+  const departement = DepartementEntity.aggregate([
+    
+    {
+      $lookup: {
+        from: "agents",
+        localField: "directeur",
+        foreignField: "_id",
+        as: "directeur",
+      },
+    },
 
-  await DepartementEntity.find({statut_deleted: checkStatut.nom})
-    .then((departement) => {
-      if (!departement) {
-        return res.status(404).send({ errorMessage: "Aucun département trouvé" });
+    {
+      $lookup: {
+        from: "agents",
+        localField: "directeur_adjoint",
+        foreignField: "_id",
+        as: "directeur_adjoint",
+      },
+    },
+
+    {
+      $lookup: {
+        from: "postes",
+        localField: "_id",
+        foreignField: "departement",
+        as: "poste",
+      },
+    },
+
+    {
+      $project:{
+        _id: 1,
+        nom: "$nom",
+        directeur: "$directeur",
+        directeur_adjoint: "$directeur_adjoint",
+        departement_hierarchique: "$departement_hierarchique",
+        postes: "$poste",
+        numOfPostes: {
+          $size:{
+            $filter: {
+              input: "$poste",
+              as: "postes",
+              cond: {
+                $eq: [
+                    "$$postes.departement",
+                    { $toObjectId: "$_id"}
+                ]
+                  
+              },
+            },
+          }
+        }
       }
-      res.status(200).send(departement);
-    })
-    .catch((error) => {
-      return res.status(500).send({
-        errorMessage: "Une erreur s'est produite, veuillez réessayer",
-      });
-    });
+    }
+
+  ])
+
+  try {
+    res.status(200).send(departement);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({ errorMessage: "Une erreur est survenue, veuillez réessayer" });
+  }
+  
 };
 
 export const GetDepartementById: Handler = async (req: Request, res: Response) => {
@@ -107,18 +146,79 @@ export const GetDepartementById: Handler = async (req: Request, res: Response) =
     return res.status(400).send({ errorMessage: "Id invalid" });
   }
 
-  await DepartementEntity.findById(id)
-    .then((departement) => {
-      if (!departement) {
-        return res.status(404).send({ errorMessage: "Aucun département trouvé" });
+  const departement = DepartementEntity.aggregate([
+
+    {
+      $match: {
+        $expr: {
+          $eq: ["$_id", { $toObjectId: id }],
+        },
+      },
+    },
+    
+    {
+      $lookup: {
+        from: "agents",
+        localField: "directeur",
+        foreignField: "_id",
+        as: "directeur",
+      },
+    },
+
+    {
+      $lookup: {
+        from: "agents",
+        localField: "directeur_adjoint",
+        foreignField: "_id",
+        as: "directeur_adjoint",
+      },
+    },
+
+    {
+      $lookup: {
+        from: "postes",
+        localField: "_id",
+        foreignField: "departement",
+        as: "poste",
+      },
+    },
+
+    {
+      $project:{
+        _id: 1,
+        nom: "$nom",
+        directeur: "$directeur",
+        directeur_adjoint: "$directeur_adjoint",
+        departement_hierarchique: "$departement_hierarchique",
+        postes: "$poste",
+        numOfPostes: {
+          $size:{
+            $filter: {
+              input: "$poste",
+              as: "postes",
+              cond: {
+                $eq: [
+                    "$$postes.departement",
+                    { $toObjectId: "$_id"}
+                ]
+                  
+              },
+            },
+          }
+        }
       }
-      res.status(200).send(departement);
-    })
-    .catch((error) => {
-      return res.status(500).send({
-        errorMessage: "Une erreur s'est produite, veuillez réessayer",
-      });
-    });
+    }
+
+  ])
+
+  try {
+    res.status(200).send(departement);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({ errorMessage: "Une erreur est survenue, veuillez réessayer" });
+  }
+
+  
 };
 
 export const UpdateDepartement: Handler = async (req: Request, res: Response) => {
@@ -137,11 +237,35 @@ export const UpdateDepartement: Handler = async (req: Request, res: Response) =>
       .send({ errorMessage: "Veuillez remplir les champ requis" });
   }
 
+  if (!mongoose.Types.ObjectId.isValid(update.directeur)) {
+    return res.status(400).send({ errorMessage: "Id directeur non valide" });
+  }
+
+  const checkDirecteur = await AgentEntity.findById(update.directeur);
+
+  if (!checkDirecteur) {
+    return res.status(404).send({
+      errorMessage: "Aucun directeur correspondant",
+    });
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(update.directeur_adjoint)) {
+    return res.status(400).send({ errorMessage: "Id directeur adjoint non valide" });
+  }
+
+  const checkDirecteurAdjoint = await AgentEntity.findById(update.directeur_adjoint);
+
+  if (!checkDirecteurAdjoint) {
+    return res.status(404).send({
+      errorMessage: "Aucun directeur adjoint correspondant",
+    });
+  }
+
   await DepartementEntity.findByIdAndUpdate(id, {
     nom: update.nom.toUpperCase(),
     departement: update.departement_hierarchique,
-    directeur: update?.directeur,
-    directeur_adjoint: update?.directeur_adjoint
+    directeur: checkDirecteur._id,
+    directeur_adjoint: checkDirecteurAdjoint._id
   })
     .then((result) => {
       if (!result) {
@@ -184,3 +308,39 @@ export const DeleteDepartement: Handler = async (req: Request, res: Response) =>
       });
     });
 };
+
+/*
+  const checkStatut = await StatusEntity.findOne({nom: 'Displayed'});
+
+  await DepartementEntity.find({statut_deleted: checkStatut.nom})
+    .then((departement) => {
+      if (!departement) {
+        return res.status(404).send({ errorMessage: "Aucun département trouvé" });
+      }
+      res.status(200).send(departement);
+    })
+    .catch((error) => {
+      return res.status(500).send({
+        errorMessage: "Une erreur s'est produite, veuillez réessayer",
+      });
+    });
+
+*/
+
+/*
+    await DepartementEntity.findById(id)
+    .then((departement) => {
+      if (!departement) {
+        return res.status(404).send({ errorMessage: "Aucun département trouvé" });
+      }
+      res.status(200).send(departement);
+    })
+    .catch((error) => {
+      return res.status(500).send({
+        errorMessage: "Une erreur s'est produite, veuillez réessayer",
+      });
+    });
+
+
+*/
+

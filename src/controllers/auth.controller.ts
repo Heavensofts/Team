@@ -53,4 +53,16 @@ export const Login: Handler = async (req: Request, res: Response) => {
 
 export const AuthenticatedUser: Handler = async (req: Request, res: Response) =>{
   res.send({user: req['user']});
-} 
+}
+
+export const Logout = async (req: Request, res: Response) => {
+  try {
+    res.cookie("jwt", "", { maxAge: 0 });
+
+    res.send({
+      message: "deconnexion réussie",
+    });
+  } catch (error: any) {
+    return res.status(401).send({ errorMessage: "Une erreur s'est produit veuillez réessayer" });
+  }
+};

@@ -12,41 +12,6 @@ export const AddEtatCivil: Handler = async (req: Request, res: Response) => {
       .send({ errorMessage: "Veuillez remplir les champ requis" });
   }
 
-  let checkStatut = await StatusEntity.findOne({ nom: "Displayed" });
-
-  if (!checkStatut) {
-
-    const myStatut = new StatusEntity({
-      nom: 'Displayed', description: "Le statut qui rend les éléments visibles", type_statut: 0
-    });
-
-    await myStatut.save().then((result) => {
-      checkStatut = result;
-    }).catch((error) => {
-      return res.status(500).send({
-        errorMessage: "Une erreur s'est produite, veuillez réessayer",
-      });
-    });
-  }
-
-  let checkStatut2 = await StatusEntity.findOne({nom: 'No-displayed'});
-  if(!checkStatut2){
-    const myStatut = new StatusEntity({
-      nom: 'No-displayed', 
-      description: "Le statut qui rend les éléments invisibles", 
-      type_statut: 0
-    });
-  
-    await myStatut.save().then((result) => {
-      checkStatut = result;
-    }).catch((error) => {
-      console.log(error.message);
-      return res.status(500).send({
-        errorMessage: "Une erreur s'est produite, veuillez réessayer",
-      });
-    });
-  }
-
   const checEtatCivilExist = await EtatCivilEntity.findOne({
     nom: nom.toUpperCase(),
   });
@@ -54,8 +19,7 @@ export const AddEtatCivil: Handler = async (req: Request, res: Response) => {
   if (!checEtatCivilExist) {
     const etatCivil = new EtatCivilEntity({
       nom: nom.toUpperCase(),
-      description,
-      statut_deleted: checkStatut.nom
+      description
     });
 
     await etatCivil
@@ -76,9 +40,8 @@ export const AddEtatCivil: Handler = async (req: Request, res: Response) => {
 
 export const GetEtatCivils: Handler = async (req: Request, res: Response) => {
 
-  const checkStatut = await StatusEntity.findOne({nom: 'Displayed'});
 
-  await EtatCivilEntity.find({statut_deleted: checkStatut.nom})
+  await EtatCivilEntity.find()
     .then((etat_civil) => {
       if (!etat_civil) {
         return res.status(404).send({ errorMessage: "Aucun état-civil trouvé" });
@@ -135,7 +98,7 @@ export const UpdateEtatCivil: Handler = async (req: Request, res: Response) => {
 
   await EtatCivilEntity.findByIdAndUpdate(id, {
     nom: update.nom.toUpperCase(),
-    description: update.description,
+    description: update?.description,
   })
     .then((result) => {
       if (!result) {

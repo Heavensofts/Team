@@ -11,20 +11,20 @@ interface IContrat extends Document {
   unite_horaire: string;
   date_debut_contrat: Date;
   date_fin_contrat: Date;
-  statut_deleted: string;
-  date_deleted?: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const contratSchema = new Schema({
 
   agent:{
-    type: Schema.Types.String,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: 'Agent'
   },
 
   type_contrat: {
-    type: Schema.Types.String,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: 'TypeContrat'
   },
@@ -35,7 +35,7 @@ const contratSchema = new Schema({
   },
 
   poste:{
-    type: Schema.Types.String,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: 'Poste'
   },
@@ -64,17 +64,6 @@ const contratSchema = new Schema({
     type: Date,
     required: false
   },
-
-  date_deleted: {
-    type: Date,
-    required: false
-  },
-
-  statut_deleted: {
-    type: Schema.Types.String,
-    required: true,
-    ref: "Status",
-  }
 
 });
 

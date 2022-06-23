@@ -34,44 +34,11 @@ export const AddContrat: Handler = async (req: Request, res: Response) => {
       .send({ errorMessage: "Veuillez remplir les champs requis" });
   }
 
-  let checkStatut = await StatusEntity.findOne({ nom: "Displayed" });
-
-  if (!checkStatut) {
-
-    const myStatut = new StatusEntity({
-      nom: 'Displayed', description: "Le statut qui rend les éléments visibles", type_statut: 0
-    });
-
-    await myStatut.save().then((result) => {
-      checkStatut = result;
-    }).catch((error) => {
-      console.log(error.message);
-      return res.status(500).send({
-        errorMessage: "Une erreur s'est produite, veuillez réessayer",
-      });
-    });
-    
+  if (!mongoose.Types.ObjectId.isValid(agent)) {
+    return res.status(400).send({ errorMessage: "Id agent non valide" });
   }
 
-  let checkStatut2 = await StatusEntity.findOne({nom: 'No-displayed'});
-  if(!checkStatut2){
-    const myStatut = new StatusEntity({
-      nom: 'No-displayed', 
-      description: "Le statut qui rend les éléments invisibles", 
-      type_statut: 0
-    });
-  
-    await myStatut.save().then((result) => {
-      checkStatut = result;
-    }).catch((error) => {
-      console.log(error.message);
-      return res.status(500).send({
-        errorMessage: "Une erreur s'est produite, veuillez réessayer",
-      });
-    });
-  }
-
-  const checkMatriculeAgent = await AgentEntity.findOne({ matricule: agent });
+  const checkMatriculeAgent = await AgentEntity.findById(agent);
 
   if (!checkMatriculeAgent) {
     return res.status(404).send({
@@ -79,15 +46,23 @@ export const AddContrat: Handler = async (req: Request, res: Response) => {
     });
   }
 
-  const checkPoste = await PosteEntity.findOne({ nom: poste.toUpperCase() });
+  if (!mongoose.Types.ObjectId.isValid(poste)) {
+    return res.status(400).send({ errorMessage: "Id poste non valide" });
+  }
+
+  const checkPoste = await PosteEntity.findById(poste);
 
   if (!checkPoste) {
     return res.status(404).send({
-      errorMessage: "Poste non correspondant",
+      errorMessage: "Aucun poste correspondant",
     });
   }
 
-  const checkTypeContrat = await TypeContratEntity.findOne({ nom: type_contrat.toUpperCase() });
+  if (!mongoose.Types.ObjectId.isValid(type_contrat)) {
+    return res.status(400).send({ errorMessage: "Id type contrat non valide" });
+  }
+
+  const checkTypeContrat = await TypeContratEntity.findById(type_contrat);
 
   if (!checkTypeContrat) {
     return res.status(404).send({
@@ -102,10 +77,9 @@ export const AddContrat: Handler = async (req: Request, res: Response) => {
     unite_horaire,
     date_debut_contrat,
     date_fin_contrat,
-    type_contrat: checkTypeContrat.nom,
-    poste: checkPoste.nom,
-    agent: checkMatriculeAgent.matricule,
-    statut_deleted: checkStatut.nom
+    type_contrat: checkTypeContrat._id,
+    poste: checkPoste._id,
+    agent: checkMatriculeAgent._id
   });
 
   await contrat
@@ -122,9 +96,11 @@ export const AddContrat: Handler = async (req: Request, res: Response) => {
 };
 
 export const GetContrats: Handler = async (req: Request, res: Response) => {
-  const checkStatut = await StatusEntity.findOne({ nom: "Displayed" });
 
-  await ContratEntity.find({ statut_deleted: checkStatut.nom })
+  await ContratEntity.find()
+    .populate({ path: "agent", select: ["prenom", "nom", "postnom"] })
+    .populate({ path: "contrat", select: "nom -_id" })
+    .populate({ path: "poste", select: "nom -_id" })
     .then((contrat) => {
       if (!contrat) {
         return res
@@ -151,6 +127,9 @@ export const GetContratById: Handler = async (
   }
 
   await ContratEntity.findById(id)
+  .populate({ path: "agent", select: ["prenom", "nom", "postnom"] })
+  .populate({ path: "contrat", select: "nom -_id" })
+  .populate({ path: "poste", select: "nom -_id" })
     .then((contrat) => {
       if (!contrat) {
         return res
@@ -189,28 +168,40 @@ export const UpdateContrat: Handler = async (req: Request, res: Response) => {
    .send({ errorMessage: "Veuillez remplir les champs requis" });
 }
 
-const checkMatriculeAgent = await AgentEntity.findOne({ matricule: update.agent });
+if (!mongoose.Types.ObjectId.isValid(update.agent)) {
+  return res.status(400).send({ errorMessage: "Id agent non valide" });
+}
+
+const checkMatriculeAgent = await AgentEntity.findById(update.agent);
 
 if (!checkMatriculeAgent) {
- return res.status(404).send({
-   errorMessage: "Aucun agent correspondant",
- });
+  return res.status(404).send({
+    errorMessage: "Aucun agent correspondant",
+  });
 }
 
-const checkPoste = await PosteEntity.findOne({ nom: update.poste.toUpperCase() });
+if (!mongoose.Types.ObjectId.isValid(update.poste)) {
+  return res.status(400).send({ errorMessage: "Id poste non valide" });
+}
+
+const checkPoste = await PosteEntity.findById(update.poste);
 
 if (!checkPoste) {
- return res.status(404).send({
-   errorMessage: "Poste non correspondant",
- });
+  return res.status(404).send({
+    errorMessage: "Aucun poste correspondant",
+  });
 }
 
-const checkTypeContrat = await TypeContratEntity.findOne({ nom: update.type_contrat.toUpperCase() });
+if (!mongoose.Types.ObjectId.isValid(update.type_contrat)) {
+  return res.status(400).send({ errorMessage: "Id type contrat non valide" });
+}
+
+const checkTypeContrat = await TypeContratEntity.findById(update.type_contrat);
 
 if (!checkTypeContrat) {
- return res.status(404).send({
-   errorMessage: "Type contrat non correspondant",
- });
+  return res.status(404).send({
+    errorMessage: "Type contrat non correspondant",
+  });
 }
 
   await ContratEntity.findByIdAndUpdate(id, {
@@ -220,9 +211,9 @@ if (!checkTypeContrat) {
     unite_horaire: update.unite_horaire,
     date_debut_contrat: update.date_debut_contrat,
     date_fin_contrat: update.date_fin_contrat,
-    type_contrat: checkTypeContrat.nom,
-    poste: checkPoste.nom,
-    agent: checkMatriculeAgent.matricule
+    type_contrat: checkTypeContrat._id,
+    poste: checkPoste._id,
+    agent: checkMatriculeAgent._id
   })
     .then((result) => {
       if (!result) {

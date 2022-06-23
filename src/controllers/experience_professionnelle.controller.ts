@@ -31,41 +31,6 @@ export const AddExperience: Handler = async (req: Request, res: Response) => {
       .send({ errorMessage: "Veuillez remplir les champ requis" });
   }
 
-  let checkStatut = await StatusEntity.findOne({ nom: "Displayed" });
-
-  if (!checkStatut) {
-
-    const myStatut = new StatusEntity({
-      nom: 'Displayed', description: "Le statut qui rend les éléments visibles", type_statut: 0
-    });
-
-    await myStatut.save().then((result) => {
-      checkStatut = result;
-    }).catch((error) => {
-      return res.status(500).send({
-        errorMessage: "Une erreur s'est produite, veuillez réessayer",
-      });
-    });
-  }
-
-  let checkStatut2 = await StatusEntity.findOne({nom: 'No-displayed'});
-  if(!checkStatut2){
-    const myStatut = new StatusEntity({
-      nom: 'No-displayed', 
-      description: "Le statut qui rend les éléments invisibles", 
-      type_statut: 0
-    });
-  
-    await myStatut.save().then((result) => {
-      checkStatut = result;
-    }).catch((error) => {
-      console.log(error.message);
-      return res.status(500).send({
-        errorMessage: "Une erreur s'est produite, veuillez réessayer",
-      });
-    });
-  }
-
   const experience = new ExperienceProfessionnelleEntity({
     date_debut, 
     date_fin, 
@@ -73,7 +38,6 @@ export const AddExperience: Handler = async (req: Request, res: Response) => {
     entreprise, 
     reference, 
     taches,
-    statut_deleted: checkStatut.nom,
   });
 
   await experience
@@ -91,9 +55,7 @@ export const AddExperience: Handler = async (req: Request, res: Response) => {
 
 export const GetExperiences: Handler = async (req: Request, res: Response) => {
 
-  const checkStatut = await StatusEntity.findOne({nom: 'Displayed'});
-
-  await ExperienceProfessionnelleEntity.find({statut_deleted: checkStatut.nom})
+  await ExperienceProfessionnelleEntity.find()
     .then((experience) => {
       if (!experience) {
         return res.status(404).send({ errorMessage: "Aucun type demande trouvé" });

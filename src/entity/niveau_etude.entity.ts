@@ -3,8 +3,8 @@ import { model, Schema, Model, Document } from 'mongoose';
 interface INiveauEtude extends Document{
   nom: String;
   description?: String;
-  statut_deleted: string;
-  date_deleted?: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const NiveauEtudeSchema = new Schema({
@@ -19,17 +19,6 @@ const NiveauEtudeSchema = new Schema({
   description: {
     type: String,
     required: false
-  },
-
-  date_deleted: {
-    type: Date,
-    required: false
-  },
-
-  statut_deleted: {
-    type: Schema.Types.String,
-    required: true,
-    ref: "Status",
   }
 
 }, {timestamps: true});

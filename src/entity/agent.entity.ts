@@ -19,6 +19,8 @@ interface IAgent extends Document{
   email: string;
   adresse: string;
   password: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const AgentSchema = new Schema({
@@ -32,8 +34,7 @@ const AgentSchema = new Schema({
 
   nom:{
     type: String,
-    required: true,
-    index: true
+    required: true
   },
 
   postnom: {
@@ -43,8 +44,7 @@ const AgentSchema = new Schema({
 
   prenom:{
     type: String,
-    required: true,
-    index: true
+    required: true
   },
 
   date_naissance:{
@@ -68,19 +68,19 @@ const AgentSchema = new Schema({
   },
 
   nationalite:{
-    type: Schema.Types.String,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: 'Pays'
   },
 
   poste:{
-    type: Schema.Types.String,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: 'Poste'
   },
 
   etat_civil:{
-    type: Schema.Types.String,
+    type: Schema.Types.ObjectId,
     required: true,
     ref:'EtatCivil'
   },
@@ -92,13 +92,13 @@ const AgentSchema = new Schema({
   },
 
   sexe: {
-    type: Schema.Types.String,
+    type: Schema.Types.ObjectId,
     required: true,
     ref:'Genre'
   },
 
   niveau_etude:{
-    type: Schema.Types.String,
+    type: Schema.Types.ObjectId,
     required: true,
     ref:'NiveauEtude'
   },

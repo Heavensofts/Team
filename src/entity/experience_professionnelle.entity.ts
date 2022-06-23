@@ -8,8 +8,8 @@ interface IExperienceProfessionnelle extends Document {
   entreprise: string;
   reference: object;
   taches: string[];
-  statut_deleted: string;
-  date_deleted?: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const ExperienceProfessionnelleSchema = new Schema({
@@ -50,16 +50,6 @@ const ExperienceProfessionnelleSchema = new Schema({
     required: true
   }],
 
-  date_deleted: {
-    type: Date,
-    required: false
-  },
-
-  statut_deleted: {
-    type: Schema.Types.String,
-    required: true,
-    ref: "Status",
-  }
 
 });
 

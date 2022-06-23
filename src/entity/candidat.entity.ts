@@ -18,8 +18,8 @@ interface ICandidat extends Document {
   documents_joints: string[];
   motivation: string;
   langue: Object[];
-  statut_deleted: string;
-  date_deleted?: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const CandidatSchema = new Schema({
@@ -56,19 +56,19 @@ const CandidatSchema = new Schema({
   },
 
   nationalite: {
-    type: Schema.Types.String,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: "Pays",
   },
 
   etat_civil: {
-    type: Schema.Types.String,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: "EtatCivil",
   },
 
   sexe: {
-    type: Schema.Types.String,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: "Sexe",
   },
@@ -161,7 +161,7 @@ const CandidatSchema = new Schema({
   langue: [{
 
     nom:{
-      type: Schema.Types.String,
+      type: Schema.Types.ObjectId,
       required: true,
       ref: 'Langue'
     },
@@ -178,17 +178,6 @@ const CandidatSchema = new Schema({
       enum: ["Bon", "Intermediaire", "Moyen", "Avancé"]
     }
   }],
-
-  date_deleted: {
-    type: Date,
-    required: false
-  },
-
-  statut_deleted: {
-    type: Schema.Types.String,
-    required: true,
-    ref: "Status",
-  }
 
 });
 

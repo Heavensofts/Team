@@ -39,42 +39,11 @@ export const AddFichePaie: Handler = async (req: Request, res: Response) => {
       .send({ errorMessage: "Veuillez remplir les champs requis" });
   }
 
-  let checkStatut = await StatusEntity.findOne({ nom: "Displayed" });
-
-  if (!checkStatut) {
-
-    const myStatut = new StatusEntity({
-      nom: 'Displayed', description: "Le statut qui rend les éléments visibles", type_statut: 0
-    });
-
-    await myStatut.save().then((result) => {
-      checkStatut = result;
-    }).catch((error) => {
-      return res.status(500).send({
-        errorMessage: "Une erreur s'est produite, veuillez réessayer",
-      });
-    });
+  if (!mongoose.Types.ObjectId.isValid(agent)) {
+    return res.status(400).send({ errorMessage: "Id agent non valide" });
   }
 
-  let checkStatut2 = await StatusEntity.findOne({nom: 'No-displayed'});
-  if(!checkStatut2){
-    const myStatut = new StatusEntity({
-      nom: 'No-displayed', 
-      description: "Le statut qui rend les éléments invisibles", 
-      type_statut: 0
-    });
-  
-    await myStatut.save().then((result) => {
-      checkStatut = result;
-    }).catch((error) => {
-      console.log(error.message);
-      return res.status(500).send({
-        errorMessage: "Une erreur s'est produite, veuillez réessayer",
-      });
-    });
-  }
-
-  const checkMatriculeAgent = await AgentEntity.findOne({ matricule: agent });
+  const checkMatriculeAgent = await AgentEntity.findById(agent);
 
   if (!checkMatriculeAgent) {
     return res.status(404).send({
@@ -91,13 +60,12 @@ export const AddFichePaie: Handler = async (req: Request, res: Response) => {
     heure_supplementaire,
     remboursement,
     prime,
-    agent: checkMatriculeAgent.matricule,
+    agent: checkMatriculeAgent._id,
     allocation_familiale,
     nombre_enfants,
     loyer,
     impot,
     cotisation_sociale,
-    statut_deleted: checkStatut.nom,
   });
 
   await fichePaie
@@ -114,9 +82,9 @@ export const AddFichePaie: Handler = async (req: Request, res: Response) => {
 };
 
 export const GetFichePaies: Handler = async (req: Request, res: Response) => {
-  const checkStatut = await StatusEntity.findOne({ nom: "Displayed" });
 
-  await FichePaieEntity.find({ statut_deleted: checkStatut.nom })
+  await FichePaieEntity.find()
+  .populate({ path: "agent", select: ["prenom", "nom", "postnom"] })
     .then((fichePaie) => {
       if (!fichePaie) {
         return res
@@ -143,6 +111,7 @@ export const GetFichePaieById: Handler = async (
   }
 
   await FichePaieEntity.findById(id)
+    .populate({ path: "agent", select: ["prenom", "nom", "postnom"] })
     .then((fichePaie) => {
       if (!fichePaie) {
         return res
@@ -195,7 +164,11 @@ export const UpdateFichePaie: Handler = async (req: Request, res: Response) => {
       .send({ errorMessage: "Veuillez remplir les champ requis" });
   }
 
-  const checkMatriculeAgent = await AgentEntity.findOne({ matricule: update.agent });
+  if (!mongoose.Types.ObjectId.isValid(update.agent)) {
+    return res.status(400).send({ errorMessage: "Id agent non valide" });
+  }
+
+  const checkMatriculeAgent = await AgentEntity.findById(update.agent);
 
   if (!checkMatriculeAgent) {
     return res.status(404).send({
@@ -212,7 +185,7 @@ export const UpdateFichePaie: Handler = async (req: Request, res: Response) => {
     heure_supplementaire: update.heure_supplementaire,
     remboursement: update.remboursement,
     prime: update.prime,
-    agent: checkMatriculeAgent.matricule,
+    agent: checkMatriculeAgent._id,
     allocation_familiale: update.allocation_familiale,
     nombre_enfants: update.nombre_enfants,
     loyer: update.loyer,

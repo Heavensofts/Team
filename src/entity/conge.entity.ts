@@ -7,26 +7,26 @@ interface IConge extends Document {
   status: string;
   type_conge: string;
   agent: string;
-  statut_deleted: string;
-  date_deleted?: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const CongeSchema = new Schema({
 
   type_conge: {
-    type: Schema.Types.String,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: 'TypeConge'
   },
 
   status: {
-    type: Schema.Types.String,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: 'Status'
   },
 
   agent: {
-    type: Schema.Types.String,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: 'Agent'
   },
@@ -39,17 +39,6 @@ const CongeSchema = new Schema({
   date_fin: {
     type: Date,
     required: true
-  },
-
-  date_deleted: {
-    type: Date,
-    required: false
-  },
-
-  statut_deleted: {
-    type: Schema.Types.String,
-    required: true,
-    ref: "Status",
   }
 
 });

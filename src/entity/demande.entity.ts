@@ -7,27 +7,25 @@ interface IDemande extends Document {
   description: string;
   type_demande: string;
   documents: string[];
-  statut_deleted: string;
-  date_deleted?: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const DemandeSchema = new Schema({
 
   nom:{
     type: String,
-    required: true,
-    unique: true,
-    index: true
+    required: true
   },
 
   agent:{
-    type: Schema.Types.String,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: 'Agent'
   },
 
   type_demande:{
-    type: Schema.Types.String,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: 'TypeDemande'
   },
@@ -41,12 +39,6 @@ const DemandeSchema = new Schema({
     type: String,
     required: false
   }],
-
-  statut_deleted:{
-    type: Schema.Types.String,
-    required: true,
-    ref: 'Status'
-  }
 
 });
 

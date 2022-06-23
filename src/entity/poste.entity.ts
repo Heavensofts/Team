@@ -8,21 +8,19 @@ interface IPoste extends Document {
   departement: string;
   job_description?: string;
   role: string;
-  statut_deleted: string;
-  date_deleted?: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const PosteSchema = new Schema({
 
   nom:{
     type: String,
-    required: true,
-    unique: true,
-    index: true
+    required: true
   },
 
   superviseur:{
-    type: Schema.Types.String,
+    type: Schema.Types.ObjectId,
     required: false,
     ref: 'Agent'
   },
@@ -38,7 +36,7 @@ const PosteSchema = new Schema({
   },
 
   departement:{
-    type: Schema.Types.String,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: 'Departement'
   },
@@ -49,21 +47,10 @@ const PosteSchema = new Schema({
   },
 
   role:{
-    type: Schema.Types.String,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: 'Role'
   },
-
-  date_deleted: {
-    type: Date,
-    required: false
-  },
-
-  statut_deleted: {
-    type: Schema.Types.String,
-    required: true,
-    ref: "Status",
-  }
 
 });
 

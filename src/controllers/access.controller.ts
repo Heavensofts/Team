@@ -23,40 +23,6 @@ export const AddAccess: Handler = async (req: Request, res: Response) => {
       .send({ errorMessage: "Veuillez remplir les champ requis" });
   }
 
-  let checkStatut = await StatusEntity.findOne({ nom: "Displayed" });
-
-  if (!checkStatut) {
-
-    const myStatut = new StatusEntity({
-      nom: 'Displayed', description: "Le statut qui rend les éléments visibles", type_statut: 0
-    });
-
-    await myStatut.save().then((result) => {
-      checkStatut = result;
-    }).catch((error) => {
-      return res.status(500).send({
-        errorMessage: "Une erreur s'est produite, veuillez réessayer",
-      });
-    });
-  }
-
-  let checkStatut2 = await StatusEntity.findOne({nom: 'No-displayed'});
-  if(!checkStatut2){
-    const myStatut = new StatusEntity({
-      nom: 'No-displayed', 
-      description: "Le statut qui rend les éléments invisibles", 
-      type_statut: 0
-    });
-  
-    await myStatut.save().then((result) => {
-      checkStatut = result;
-    }).catch((error) => {
-      console.log(error.message);
-      return res.status(500).send({
-        errorMessage: "Une erreur s'est produite, veuillez réessayer",
-      });
-    });
-  }
 
   const checkTypeAccess = await TypeAccessEntity.findOne({...type_access});
   console.log("My check access: ", checkTypeAccess)
@@ -70,8 +36,7 @@ export const AddAccess: Handler = async (req: Request, res: Response) => {
   const access = new AccessEntity({
     type_access,
     composants,
-    actions,
-    statut_deleted: checkStatut.nom,
+    actions
   });
 
   await access
@@ -92,6 +57,7 @@ export const GetAccess: Handler = async (req: Request, res: Response) => {
   const checkStatut = await StatusEntity.findOne({nom: 'Displayed'});
 
   await AccessEntity.find({statut_deleted: checkStatut.nom})
+    .populate({ path: "type_access", select: "nom -_id" })
     .then((access) => {
       if (!access) {
         return res.status(404).send({ errorMessage: "Aucun type demande trouvé" });
@@ -113,6 +79,7 @@ export const GetAccessById: Handler = async (req: Request, res: Response) => {
   }
 
   await AccessEntity.findById(id)
+    .populate({ path: "type_access", select: "nom -_id" })
     .then((typeDemande) => {
       if (!typeDemande) {
         return res.status(404).send({ errorMessage: "Aucun access trouvé" });

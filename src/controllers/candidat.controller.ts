@@ -121,52 +121,11 @@ export const AddCandidat: Handler = async (req: Request, res: Response) => {
       .send({ errorMessage: "Veuillez remplir les champs requis" });
   }
 
-  let checkStatut = await StatusEntity.findOne({ nom: "Displayed" });
-
-  if (!checkStatut) {
-
-    const myStatut = new StatusEntity({
-      nom: 'Displayed', description: "Le statut qui rend les éléments visibles", type_statut: 0
-    });
-
-    await myStatut.save().then((result) => {
-      checkStatut = result;
-    }).catch((error) => {
-      console.log(error.message);
-      return res.status(500).send({
-        errorMessage: "Une erreur s'est produite, veuillez réessayer",
-      });
-    });
-    
+  if (!mongoose.Types.ObjectId.isValid(etat_civil)) {
+    return res.status(400).send({ errorMessage: "Id Etat-civil non valide" });
   }
 
-  let checkStatut2 = await StatusEntity.findOne({nom: 'No-displayed'});
-  if(!checkStatut2){
-    const myStatut = new StatusEntity({
-      nom: 'No-displayed', 
-      description: "Le statut qui rend les éléments invisibles", 
-      type_statut: 0
-    });
-  
-    await myStatut.save().then((result) => {
-      checkStatut = result;
-    }).catch((error) => {
-      console.log(error.message);
-      return res.status(500).send({
-        errorMessage: "Une erreur s'est produite, veuillez réessayer",
-      });
-    });
-  }
-
-  const checkNationalite = await PaysEntity.findOne({nom: nationalite});
-
-  if (!checkNationalite) {
-    return res.status(404).send({
-      errorMessage: "Aucun pays correspondant",
-    });
-  }
-
-  const checkEtatCivil = await EtatCivilEntity.findOne({nom: etat_civil.toUpperCase()});
+  const checkEtatCivil = await EtatCivilEntity.findById(etat_civil);
 
   if (!checkEtatCivil) {
     return res.status(404).send({
@@ -174,8 +133,24 @@ export const AddCandidat: Handler = async (req: Request, res: Response) => {
     });
   }
 
-  const checkSexe = await GenreEntity.findOne({nom: sexe.toUpperCase()});
-  
+  if (!mongoose.Types.ObjectId.isValid(nationalite)) {
+    return res.status(400).send({ errorMessage: "Id nationalité non valide" });
+  }
+
+  const checkPays = await PaysEntity.findById(nationalite);
+
+  if (!checkPays) {
+    return res.status(404).send({
+      errorMessage: "Aucun pays correspondant",
+    });
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(sexe)) {
+    return res.status(400).send({ errorMessage: "Id sexe non valide" });
+  }
+
+  const checkSexe = await GenreEntity.findById(sexe);
+
   if (!checkSexe) {
     return res.status(404).send({
       errorMessage: "Aucun sexe correspondant",
@@ -216,16 +191,15 @@ export const AddCandidat: Handler = async (req: Request, res: Response) => {
     date_naissance,
     lieu_naissance,
     telephone,
-    nationalite: checkNationalite.nom,
-    etat_civil: checkEtatCivil.nom,
-    sexe: checkSexe.nom,
+    nationalite: checkPays._id,
+    etat_civil: checkEtatCivil._id,
+    sexe: checkSexe._id,
     email,
     etudes_faites: mesEtudes,
     experience_professionnelle: monExperience,
     competences,
     motivation,
     langue: maLangue,
-    statut_deleted: checkStatut.nom,
   });
 
   await candidat
@@ -369,23 +343,11 @@ export const UpdateCandidat: Handler = async (req: Request, res: Response) => {
       .send({ errorMessage: "Veuillez remplir les champs requis" });
   }
 
-  const checkStatut = await StatusEntity.findOne({ nom: "Displayed" });
-
-  if (!checkStatut) {
-    return res.status(404).send({
-      errorMessage: "Aucun statut correspondant",
-    });
+  if (!mongoose.Types.ObjectId.isValid(update.etat_civil)) {
+    return res.status(400).send({ errorMessage: "Id Etat  civil non valide" });
   }
 
-  const checkNationalite = await PaysEntity.findOne({nom: update.nationalite});
-
-  if (!checkNationalite) {
-    return res.status(404).send({
-      errorMessage: "Aucun pays correspondant",
-    });
-  }
-
-  const checkEtatCivil = await EtatCivilEntity.findOne({nom: update.etat_civil.toUpperCase()});
+  const checkEtatCivil = await EtatCivilEntity.findById(update.etat_civil);
 
   if (!checkEtatCivil) {
     return res.status(404).send({
@@ -393,8 +355,24 @@ export const UpdateCandidat: Handler = async (req: Request, res: Response) => {
     });
   }
 
-  const checkSexe = await GenreEntity.findOne({nom: update.sexe.toUpperCase()});
-  
+  if (!mongoose.Types.ObjectId.isValid(update.nationalite)) {
+    return res.status(400).send({ errorMessage: "Id nationalité non valide" });
+  }
+
+  const checkPays = await PaysEntity.findById(update.nationalite);
+
+  if (!checkPays) {
+    return res.status(404).send({
+      errorMessage: "Aucun pays correspondant",
+    });
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(update.sexe)) {
+    return res.status(400).send({ errorMessage: "Id sexe non valide" });
+  }
+
+  const checkSexe = await GenreEntity.findById(update.sexe);
+
   if (!checkSexe) {
     return res.status(404).send({
       errorMessage: "Aucun sexe correspondant",
@@ -435,9 +413,9 @@ export const UpdateCandidat: Handler = async (req: Request, res: Response) => {
     date_naissance: update.date_naissance,
     lieu_naissance: update.lieu_naissance,
     telephone: update.telephone,
-    nationalite: checkNationalite.nom,
-    etat_civil: checkEtatCivil.nom,
-    sexe: checkSexe.nom,
+    nationalite: checkPays._id,
+    etat_civil: checkEtatCivil._id,
+    sexe: checkSexe._id,
     email: update.email,
     etudes_faites: mesEtudes,
     experience_professionnelle: monExperience,

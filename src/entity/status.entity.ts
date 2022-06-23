@@ -4,16 +4,13 @@ interface IStatus extends Document {
   nom: string;
   type_statut: number
   description?: String;
-  date_deleted?: Date;
 }
 
 const StatusSchema = new Schema(
   {
     nom: {
       type: String,
-      required: true,
-      index: true,
-      unique: true
+      required: true
     },
 
     description: {
@@ -27,10 +24,6 @@ const StatusSchema = new Schema(
       default: 0
     },
     
-    date_deleted: {
-      type: Date,
-      required: false,
-    }
   },
   { timestamps: true }
 );

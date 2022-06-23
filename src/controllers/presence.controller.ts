@@ -21,42 +21,11 @@ export const AddPresence: Handler = async (req: Request, res: Response) => {
       .send({ errorMessage: "Veuillez remplir les champ requis" });
   }
 
-  let checkStatut = await StatusEntity.findOne({ nom: "Displayed" });
-
-  if (!checkStatut) {
-
-    const myStatut = new StatusEntity({
-      nom: 'Displayed', description: "Le statut qui rend les éléments visibles", type_statut: 0
-    });
-
-    await myStatut.save().then((result) => {
-      checkStatut = result;
-    }).catch((error) => {
-      return res.status(500).send({
-        errorMessage: "Une erreur s'est produite, veuillez réessayer",
-      });
-    });
+  if (!mongoose.Types.ObjectId.isValid(status)) {
+    return res.status(400).send({ errorMessage: "Id agent non valide" });
   }
 
-  let checkStatut2 = await StatusEntity.findOne({nom: 'No-displayed'});
-  if(!checkStatut2){
-    const myStatut = new StatusEntity({
-      nom: 'No-displayed', 
-      description: "Le statut qui rend les éléments invisibles", 
-      type_statut: 0
-    });
-  
-    await myStatut.save().then((result) => {
-      checkStatut = result;
-    }).catch((error) => {
-      console.log(error.message);
-      return res.status(500).send({
-        errorMessage: "Une erreur s'est produite, veuillez réessayer",
-      });
-    });
-  }
-
-  const checkStatusPresence = await StatusEntity.findOne({ nom: status });
+  const checkStatusPresence = await StatusEntity.findById(status);
 
   if (!checkStatusPresence) {
     return res.status(404).send({
@@ -64,7 +33,11 @@ export const AddPresence: Handler = async (req: Request, res: Response) => {
     });
   }
 
-  const checkMatriculeAgent = await AgentEntity.findOne({ matricule: agent });
+  if (!mongoose.Types.ObjectId.isValid(agent)) {
+    return res.status(400).send({ errorMessage: "Id agent non valide" });
+  }
+
+  const checkMatriculeAgent = await AgentEntity.findById(agent);
 
   if (!checkMatriculeAgent) {
     return res.status(404).send({
@@ -73,11 +46,10 @@ export const AddPresence: Handler = async (req: Request, res: Response) => {
   }
 
   const presence = new PresenceEntity({
-    status: checkStatusPresence.nom,
-    agent: checkMatriculeAgent.matricule,
+    status: checkStatusPresence._id,
+    agent: checkMatriculeAgent._id,
     date_heure_arriver,
     date_heure_depart,
-    statut_deleted: checkStatut.nom,
   });
 
   await presence
@@ -97,6 +69,8 @@ export const GetPresences: Handler = async (req: Request, res: Response) => {
   const checkStatut = await StatusEntity.findOne({ nom: "Displayed" });
 
   await PresenceEntity.find({ statut_deleted: checkStatut.nom })
+  .populate({ path: "status", select: "nom -_id" })
+  .populate({ path: "agent", select: ["prenom", "nom", "postnom"] })
     .then((presence) => {
       if (!presence) {
         return res
@@ -120,6 +94,8 @@ export const GetPresenceById: Handler = async (req: Request, res: Response) => {
   }
 
   await PresenceEntity.findById(id)
+    .populate({ path: "status", select: "nom -_id" })
+    .populate({ path: "agent", select: ["prenom", "nom", "postnom"] })
     .then((noteFrais) => {
       if (!noteFrais) {
         return res
@@ -152,15 +128,11 @@ export const UpdatePresence: Handler = async (req: Request, res: Response) => {
       .send({ errorMessage: "Veuillez remplir les champ requis" });
   }
 
-  const checkStatut = await StatusEntity.findOne({ nom: "Displayed" });
-
-  if (!checkStatut) {
-    return res.status(404).send({
-      errorMessage: "Aucun statut correspondant",
-    });
+  if (!mongoose.Types.ObjectId.isValid(update.status)) {
+    return res.status(400).send({ errorMessage: "Id agent non valide" });
   }
 
-  const checkStatusPresence = await StatusEntity.findOne({ nom: update.status });
+  const checkStatusPresence = await StatusEntity.findById(update.status);
 
   if (!checkStatusPresence) {
     return res.status(404).send({
@@ -168,7 +140,11 @@ export const UpdatePresence: Handler = async (req: Request, res: Response) => {
     });
   }
 
-  const checkMatriculeAgent = await AgentEntity.findOne({ matricule: update.agent });
+  if (!mongoose.Types.ObjectId.isValid(update.agent)) {
+    return res.status(400).send({ errorMessage: "Id agent non valide" });
+  }
+
+  const checkMatriculeAgent = await AgentEntity.findById(update.agent);
 
   if (!checkMatriculeAgent) {
     return res.status(404).send({
@@ -177,8 +153,8 @@ export const UpdatePresence: Handler = async (req: Request, res: Response) => {
   }
 
   await PresenceEntity.findByIdAndUpdate(id, {
-    status: checkStatusPresence.nom,
-    agent: checkMatriculeAgent.matricule,
+    status: checkStatusPresence._id,
+    agent: checkMatriculeAgent._id,
     date_heure_arriver: update.date_heure_arriver,
     date_heure_depart: update.date_heure_depart
   })

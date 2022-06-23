@@ -7,8 +7,8 @@ interface IEtudeFaites extends Document {
   etablissement: String;
   filiale: String;
   diplome_obtenu: String;
-  statut_deleted: string;
-  date_deleted?: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const EtudeFaitesSchema = new Schema({
@@ -37,17 +37,6 @@ const EtudeFaitesSchema = new Schema({
     type: String,
     required: true
   },
-
-  date_deleted: {
-    type: Date,
-    required: false
-  },
-
-  statut_deleted: {
-    type: Schema.Types.String,
-    required: true,
-    ref: "Status",
-  }
 
 });
 

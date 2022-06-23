@@ -1,7 +1,6 @@
 import { Request, Response, Handler } from "express";
 import mongoose from "mongoose";
 import { LangueEntity } from "../entity/langue.entity";
-import { StatusEntity } from "../entity/status.entity";
 
 export const AddLangue: Handler = async (req: Request, res: Response) => {
   const { nom, description } = req.body;
@@ -14,48 +13,12 @@ export const AddLangue: Handler = async (req: Request, res: Response) => {
 
   const checkLangue = await LangueEntity.findOne({nom: nom.toUpperCase()});
 
-  let checkStatut = await StatusEntity.findOne({ nom: "Displayed" });
-
-  if (!checkStatut) {
-
-    const myStatut = new StatusEntity({
-      nom: 'Displayed', description: "Le statut qui rend les éléments visibles", type_statut: 0
-    });
-
-    await myStatut.save().then((result) => {
-      checkStatut = result;
-    }).catch((error) => {
-      return res.status(500).send({
-        errorMessage: "Une erreur s'est produite, veuillez réessayer",
-      });
-    });
-  }
-
-  let checkStatut2 = await StatusEntity.findOne({nom: 'No-displayed'});
-  if(!checkStatut2){
-    const myStatut = new StatusEntity({
-      nom: 'No-displayed', 
-      description: "Le statut qui rend les éléments invisibles", 
-      type_statut: 0
-    });
-  
-    await myStatut.save().then((result) => {
-      checkStatut = result;
-    }).catch((error) => {
-      console.log(error.message);
-      return res.status(500).send({
-        errorMessage: "Une erreur s'est produite, veuillez réessayer",
-      });
-    });
-  }
-
 
   if(!checkLangue){
 
     const langue = new LangueEntity({
       nom: nom.toUpperCase(),
-      description,
-      statut_deleted: checkStatut.nom,
+      description
     });
   
     await langue
@@ -79,9 +42,8 @@ export const AddLangue: Handler = async (req: Request, res: Response) => {
 };
 
 export const GetLangues: Handler = async (req: Request, res: Response) => {
-  const checkStatut = await StatusEntity.findOne({ nom: "Displayed" });
 
-  await LangueEntity.find({ statut_deleted: checkStatut.nom })
+  await LangueEntity.find()
     .then((langue) => {
       if (!langue) {
         return res.status(404).send({ errorMessage: "Aucune langue trouvée" });

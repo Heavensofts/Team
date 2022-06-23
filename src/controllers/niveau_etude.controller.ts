@@ -12,41 +12,6 @@ export const AddNiveauEtude: Handler = async (req: Request, res: Response) => {
       .send({ errorMessage: "Veuillez remplir les champ requis" });
   }
 
-  let checkStatut = await StatusEntity.findOne({ nom: "Displayed" });
-
-  if (!checkStatut) {
-
-    const myStatut = new StatusEntity({
-      nom: 'Displayed', description: "Le statut qui rend les éléments visibles", type_statut: 0
-    });
-
-    await myStatut.save().then((result) => {
-      checkStatut = result;
-    }).catch((error) => {
-      return res.status(500).send({
-        errorMessage: "Une erreur s'est produite, veuillez réessayer",
-      });
-    });
-  }
-
-  let checkStatut2 = await StatusEntity.findOne({nom: 'No-displayed'});
-  if(!checkStatut2){
-    const myStatut = new StatusEntity({
-      nom: 'No-displayed', 
-      description: "Le statut qui rend les éléments invisibles", 
-      type_statut: 0
-    });
-  
-    await myStatut.save().then((result) => {
-      checkStatut = result;
-    }).catch((error) => {
-      console.log(error.message);
-      return res.status(500).send({
-        errorMessage: "Une erreur s'est produite, veuillez réessayer",
-      });
-    });
-  }
-
   const checkNiveauEtudeExist = await NiveauEtudeEntity.findOne({
     nom: nom.toUpperCase(),
   });
@@ -54,8 +19,7 @@ export const AddNiveauEtude: Handler = async (req: Request, res: Response) => {
   if (!checkNiveauEtudeExist) {
     const niveauEtude = new NiveauEtudeEntity({
       nom: nom.toUpperCase(),
-      description,
-      statut_deleted: checkStatut.nom
+      description
     });
 
     await niveauEtude
@@ -76,9 +40,7 @@ export const AddNiveauEtude: Handler = async (req: Request, res: Response) => {
 
 export const GetNiveauEtudes: Handler = async (req: Request, res: Response) => {
 
-  const checkStatut = await StatusEntity.findOne({nom: 'Displayed'});
-
-  await NiveauEtudeEntity.find({statut_deleted: checkStatut.nom})
+  await NiveauEtudeEntity.find()
     .then((niveau_etude) => {
       if (!niveau_etude) {
         return res.status(404).send({ errorMessage: "Aucun niveau d'étude trouvé" });
@@ -135,7 +97,7 @@ export const UpdateNiveauEtude: Handler = async (req: Request, res: Response) =>
 
   await NiveauEtudeEntity.findByIdAndUpdate(id, {
     nom: update.nom.toUpperCase(),
-    description: update.description,
+    description: update?.description,
   })
     .then((result) => {
       if (!result) {

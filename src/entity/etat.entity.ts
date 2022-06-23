@@ -21,7 +21,7 @@ const EtatSchema = new Schema({
   }],
 
   status: {
-    type: Schema.Types.String,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: 'Status'
   }

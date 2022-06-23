@@ -20,39 +20,8 @@ export const AddRole: Handler = async (req: Request, res: Response) => {
       .send({ errorMessage: "Veuillez remplir les champ requis" });
   }
 
-  let checkStatut = await StatusEntity.findOne({ nom: "Displayed" });
-
-  if (!checkStatut) {
-
-    const myStatut = new StatusEntity({
-      nom: 'Displayed', description: "Le statut qui rend les éléments visibles", type_statut: 0
-    });
-
-    await myStatut.save().then((result) => {
-      checkStatut = result;
-    }).catch((error) => {
-      return res.status(500).send({
-        errorMessage: "Une erreur s'est produite, veuillez réessayer",
-      });
-    });
-  }
-
-  let checkStatut2 = await StatusEntity.findOne({nom: 'No-displayed'});
-  if(!checkStatut2){
-    const myStatut = new StatusEntity({
-      nom: 'No-displayed', 
-      description: "Le statut qui rend les éléments invisibles", 
-      type_statut: 0
-    });
-  
-    await myStatut.save().then((result) => {
-      checkStatut = result;
-    }).catch((error) => {
-      console.log(error.message);
-      return res.status(500).send({
-        errorMessage: "Une erreur s'est produite, veuillez réessayer",
-      });
-    });
+  if (!mongoose.Types.ObjectId.isValid(access)) {
+    return res.status(400).send({ errorMessage: "Id access non valide" });
   }
 
   const checkAccess = await AccessEntity.findById(access);
@@ -71,7 +40,6 @@ export const AddRole: Handler = async (req: Request, res: Response) => {
       nom: nom.toUpperCase(), 
       description,
       access: checkAccess._id,
-      statut_deleted: checkStatut.nom
     });
   
     await role
@@ -150,6 +118,10 @@ export const UpdateRole: Handler = async (req: Request, res: Response) => {
     return res
       .status(400)
       .send({ errorMessage: "Veuillez remplir les champ requis" });
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(update.access)) {
+    return res.status(400).send({ errorMessage: "Id access non valide" });
   }
 
   const checkAccess = await AccessEntity.findById(update.access);

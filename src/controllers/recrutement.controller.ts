@@ -23,12 +23,6 @@ export const AddRecrutement: Handler = async (req: Request, res: Response) => {
     typeof job_description === undefined ||
     typeof job_description == null ||
     !job_description ||
-    typeof type_contrat === undefined ||
-    typeof type_contrat == null ||
-    !type_contrat ||
-    typeof candidat === undefined ||
-    typeof candidat == null ||
-    !candidat ||
     typeof debut_recrutement === undefined ||
     typeof debut_recrutement == null ||
     !debut_recrutement ||
@@ -38,49 +32,11 @@ export const AddRecrutement: Handler = async (req: Request, res: Response) => {
     typeof poste === undefined ||
     poste === null ||
     !poste ||
-    typeof recruteur === undefined ||
-    recruteur === null ||
-    !recruteur ||
-    typeof nombre_poste === undefined
+    typeof nombre_poste === undefined || typeof nombre_poste === null || !nombre_poste
   ) {
     return res
       .status(400)
       .send({ errorMessage: "Veuillez remplir les champs requis" });
-  }
-
-  let checkStatut = await StatusEntity.findOne({ nom: "Displayed" });
-
-  if (!checkStatut) {
-
-    const myStatut = new StatusEntity({
-      nom: 'Displayed', description: "Le statut qui rend les éléments visibles", type_statut: 0
-    });
-
-    await myStatut.save().then((result) => {
-      checkStatut = result;
-    }).catch((error) => {
-      return res.status(500).send({
-        errorMessage: "Une erreur s'est produite, veuillez réessayer",
-      });
-    });
-  }
-
-  let checkStatut2 = await StatusEntity.findOne({nom: 'No-displayed'});
-  if(!checkStatut2){
-    const myStatut = new StatusEntity({
-      nom: 'No-displayed', 
-      description: "Le statut qui rend les éléments invisibles", 
-      type_statut: 0
-    });
-  
-    await myStatut.save().then((result) => {
-      checkStatut = result;
-    }).catch((error) => {
-      console.log(error.message);
-      return res.status(500).send({
-        errorMessage: "Une erreur s'est produite, veuillez réessayer",
-      });
-    });
   }
 
   var myCand = [];
@@ -150,13 +106,15 @@ export const AddRecrutement: Handler = async (req: Request, res: Response) => {
     });
   }
 
-  const checkPoste = await PosteEntity.findOne({
-    nom: poste.toUpperCase(),
-  });
+  if (!mongoose.Types.ObjectId.isValid(poste)) {
+    return res.status(400).send({ errorMessage: "Id poste non valide" });
+  }
+
+  const checkPoste = await PosteEntity.findById(poste);
 
   if (!checkPoste) {
     return res.status(404).send({
-      errorMessage: "poste non correspondant",
+      errorMessage: "Aucun poste correspondant",
     });
   }
 
@@ -165,11 +123,10 @@ export const AddRecrutement: Handler = async (req: Request, res: Response) => {
     debut_recrutement,
     fin_recrutement,
     nombre_poste,
-    poste: checkPoste.nom,
+    poste: checkPoste._id,
     type_contrat: myTypeContrat,
     candidat: myCand,
     recruteur: myRecruteur,
-    statut_deleted: checkStatut.nom
   });
 
   await recrutement
@@ -309,13 +266,15 @@ export const UpdateRecrutement: Handler = async (req: Request, res: Response) =>
   });
 
 
-  const checkPoste = await PosteEntity.findOne({
-    nom: update.poste.toUpperCase(),
-  });
+  if (!mongoose.Types.ObjectId.isValid(update.poste)) {
+    return res.status(400).send({ errorMessage: "Id poste non valide" });
+  }
+
+  const checkPoste = await PosteEntity.findById(update.poste);
 
   if (!checkPoste) {
     return res.status(404).send({
-      errorMessage: "poste non correspondant",
+      errorMessage: "Aucun poste correspondant",
     });
   }
 
@@ -324,7 +283,7 @@ export const UpdateRecrutement: Handler = async (req: Request, res: Response) =>
     debut_recrutement: update.debut_recrutement,
     fin_recrutement: update.fin_recrutement,
     nombre_poste: update.nombre_poste,
-    poste: checkPoste.nom,
+    poste: checkPoste._id,
     type_contrat: myTypeContrat,
     candidat: myCand,
     recruteur: myRecruteur

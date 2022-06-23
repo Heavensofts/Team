@@ -5,8 +5,8 @@ interface IPresence extends Document {
   date_heure_arriver?: Date;
   date_heure_depart?: Date;
   agent: string;
-  statut_deleted: string;
-  date_deleted?: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const PresenceSchema = new Schema({
@@ -28,21 +28,10 @@ const PresenceSchema = new Schema({
   },
 
   agent: {
-    type: Schema.Types.String,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: 'Agent'
   },
-
-  date_deleted: {
-    type: Date,
-    required: false
-  },
-
-  statut_deleted: {
-    type: Schema.Types.String,
-    required: true,
-    ref: "Status",
-  }
 
 }, {timestamps: true});
 

@@ -10,8 +10,7 @@ export const AddPoste: Handler = async (req: Request, res: Response) => {
 
   if (
     typeof nom === undefined || nom === null || !nom ||
-    typeof poste_hierarchique === undefined || poste_hierarchique === null ||
-    !poste_hierarchique || typeof departement === undefined || departement === null ||
+    typeof departement === undefined || departement === null ||
     !departement || typeof role === undefined || role === null || !role
     || typeof disponibilite_poste === undefined || disponibilite_poste === null || !disponibilite_poste
   ) {
@@ -20,42 +19,11 @@ export const AddPoste: Handler = async (req: Request, res: Response) => {
       .send({ errorMessage: "Veuillez remplir les champ requis" });
   }
 
-  let checkStatut = await StatusEntity.findOne({ nom: "Displayed" });
-
-  if (!checkStatut) {
-
-    const myStatut = new StatusEntity({
-      nom: 'Displayed', description: "Le statut qui rend les éléments visibles", type_statut: 0
-    });
-
-    await myStatut.save().then((result) => {
-      checkStatut = result;
-    }).catch((error) => {
-      return res.status(500).send({
-        errorMessage: "Une erreur s'est produite, veuillez réessayer",
-      });
-    });
+  if (!mongoose.Types.ObjectId.isValid(role)) {
+    return res.status(400).send({ errorMessage: "Id role non valide" });
   }
 
-  let checkStatut2 = await StatusEntity.findOne({nom: 'No-displayed'});
-  if(!checkStatut2){
-    const myStatut = new StatusEntity({
-      nom: 'No-displayed', 
-      description: "Le statut qui rend les éléments invisibles", 
-      type_statut: 0
-    });
-  
-    await myStatut.save().then((result) => {
-      checkStatut = result;
-    }).catch((error) => {
-      console.log(error.message);
-      return res.status(500).send({
-        errorMessage: "Une erreur s'est produite, veuillez réessayer",
-      });
-    });
-  }
-
-  const checkRole = await RoleEntity.findOne({ nom: role.toUpperCase() });
+  const checkRole = await RoleEntity.findOne(role);
 
   if (!checkRole) {
     return res.status(404).send({
@@ -63,7 +31,11 @@ export const AddPoste: Handler = async (req: Request, res: Response) => {
     });
   }
 
-  const checkDepartement = await DepartementEntity.findOne({ nom: departement.toUpperCase() });
+  if (!mongoose.Types.ObjectId.isValid(departement)) {
+    return res.status(400).send({ errorMessage: "Id departement non valide" });
+  }
+
+  const checkDepartement = await DepartementEntity.findById(departement);
 
   if (!checkDepartement) {
     return res.status(404).send({
@@ -78,10 +50,9 @@ export const AddPoste: Handler = async (req: Request, res: Response) => {
     const poste = new PosteEntity({
       nom: nom.toUpperCase(), 
       poste_hierarchique,
-      departement: checkDepartement.nom,
-      role: checkRole.nom,
-      disponibilite_poste,
-      statut_deleted: checkStatut.nom
+      departement: checkDepartement._id,
+      role: checkRole._id,
+      disponibilite_poste
     });
   
     await poste
@@ -105,9 +76,10 @@ export const AddPoste: Handler = async (req: Request, res: Response) => {
 
 export const GetPostes: Handler = async (req: Request, res: Response) => {
 
-  const checkStatut = await StatusEntity.findOne({nom: 'Displayed'});
-
-  await PosteEntity.find({statut_deleted: checkStatut.nom})
+  await PosteEntity.find()
+    .populate({ path: "agent", select: ["prenom", "nom", "postnom"] })
+    .populate({ path: "departement", select: "nom -id" })
+    .populate({ path: "role", select: "nom -id" })
     .then((poste) => {
       if (!poste) {
         return res.status(404).send({ errorMessage: "Aucun poste trouvé" });
@@ -129,6 +101,9 @@ export const GetPosteById: Handler = async (req: Request, res: Response) => {
   }
 
   await PosteEntity.findById(id)
+  .populate({ path: "agent", select: ["prenom", "nom", "postnom"] })
+  .populate({ path: "departement", select: "nom -id" })
+  .populate({ path: "role", select: "nom -id" })
     .then((poste) => {
       if (!poste) {
         return res.status(404).send({ errorMessage: "Aucun poste trouvé" });
@@ -154,8 +129,7 @@ export const UpdatePoste: Handler = async (req: Request, res: Response) => {
 
   if (
     typeof update.nom === undefined || update.nom === null || !update.nom ||
-    typeof update.poste_hierarchique === undefined || update.poste_hierarchique === null ||
-    !update.poste_hierarchique || typeof update.departement === undefined || update.departement === null ||
+    typeof update.departement === undefined || update.departement === null ||
     !update.departement || typeof update.role === undefined || update.role === null || !update.role
     || typeof update.disponibilite_poste === undefined || update.disponibilite_poste === null || !update.disponibilite_poste
   ) {
@@ -164,7 +138,11 @@ export const UpdatePoste: Handler = async (req: Request, res: Response) => {
       .send({ errorMessage: "Veuillez remplir les champ requis" });
   }
 
-  const checkRole = await RoleEntity.findOne({ nom: update.role.toUpperCase() });
+  if (!mongoose.Types.ObjectId.isValid(update.role)) {
+    return res.status(400).send({ errorMessage: "Id role non valide" });
+  }
+
+  const checkRole = await RoleEntity.findOne(update.role);
 
   if (!checkRole) {
     return res.status(404).send({
@@ -172,7 +150,11 @@ export const UpdatePoste: Handler = async (req: Request, res: Response) => {
     });
   }
 
-  const checkDepartement = await DepartementEntity.findOne({ nom: update.departement.toUpperCase() });
+  if (!mongoose.Types.ObjectId.isValid(update.departement)) {
+    return res.status(400).send({ errorMessage: "Id departement non valide" });
+  }
+
+  const checkDepartement = await DepartementEntity.findById(update.departement);
 
   if (!checkDepartement) {
     return res.status(404).send({

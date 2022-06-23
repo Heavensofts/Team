@@ -5,14 +5,14 @@ interface IAccess extends Document {
   type_access: string[];
   composants: string[];
   actions: string[];
-  statut_deleted: string;
-  date_deleted?: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const AccessSchema = new Schema({
 
   type_access: [{
-    type: Schema.Types.String,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: 'TypeAccess'
   }],
@@ -27,16 +27,6 @@ const AccessSchema = new Schema({
     required: true
   }],
 
-  date_deleted: {
-    type: Date,
-    required: false
-  },
-
-  statut_deleted: {
-    type: Schema.Types.String,
-    required: true,
-    ref: "Status",
-  }
 
 }, {timestamps: true});
 

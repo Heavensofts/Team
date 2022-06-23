@@ -37,44 +37,13 @@ export const AddNoteFrais: Handler = async (req: Request, res: Response) => {
     return res
       .status(400)
       .send({ errorMessage: "Veuillez remplir les champ requis" });
+  }  
+
+  if (!mongoose.Types.ObjectId.isValid(agent)) {
+    return res.status(400).send({ errorMessage: "Id agent non valide" });
   }
 
-  let checkStatut = await StatusEntity.findOne({ nom: "Displayed" });
-
-  if (!checkStatut) {
-
-    const myStatut = new StatusEntity({
-      nom: 'Displayed', description: "Le statut qui rend les éléments visibles", type_statut: 0
-    });
-
-    await myStatut.save().then((result) => {
-      checkStatut = result;
-    }).catch((error) => {
-      return res.status(500).send({
-        errorMessage: "Une erreur s'est produite, veuillez réessayer",
-      });
-    });
-  }
-
-  let checkStatut2 = await StatusEntity.findOne({nom: 'No-displayed'});
-  if(!checkStatut){
-    const myStatut = new StatusEntity({
-      nom: 'No-displayed', 
-      description: "Le statut qui rend les éléments invisibles", 
-      type_statut: 0
-    });
-  
-    await myStatut.save().then((result) => {
-      checkStatut = result;
-    }).catch((error) => {
-      console.log(error.message);
-      return res.status(500).send({
-        errorMessage: "Une erreur s'est produite, veuillez réessayer",
-      });
-    });
-  }
-
-  const checkMatriculeAgent = await AgentEntity.findOne({ matricule: agent });
+  const checkMatriculeAgent = await AgentEntity.findById(agent);
 
   if (!checkMatriculeAgent) {
     return res.status(404).send({
@@ -84,12 +53,11 @@ export const AddNoteFrais: Handler = async (req: Request, res: Response) => {
 
   const noteFrais = new NoteFraisEntity({
     intitule_mission,
-    agent: checkMatriculeAgent.matricule,
+    agent: checkMatriculeAgent._id,
     date_debut_mission,
     date_fin_mission,
     devise,
-    frais_mission,
-    statut_deleted: checkStatut.nom,
+    frais_mission
   });
 
   await noteFrais
@@ -106,9 +74,7 @@ export const AddNoteFrais: Handler = async (req: Request, res: Response) => {
 };
 
 export const GetNoteFrais: Handler = async (req: Request, res: Response) => {
-  const checkStatut = await StatusEntity.findOne({ nom: "Displayed" });
-
-  await NoteFraisEntity.find({ statut_deleted: checkStatut.nom })
+  await NoteFraisEntity.find()
     .then((noteFrais) => {
       if (!noteFrais) {
         return res
@@ -183,9 +149,11 @@ export const UpdateNoteFrais: Handler = async (req: Request, res: Response) => {
       .send({ errorMessage: "Veuillez remplir les champ requis" });
   }
 
-  const checkMatriculeAgent = await AgentEntity.findOne({
-    matricule: update.agent,
-  });
+  if (!mongoose.Types.ObjectId.isValid(update.agent)) {
+    return res.status(400).send({ errorMessage: "Id agent non valide" });
+  }
+
+  const checkMatriculeAgent = await AgentEntity.findById(update.agent);
 
   if (!checkMatriculeAgent) {
     return res.status(404).send({
@@ -195,7 +163,7 @@ export const UpdateNoteFrais: Handler = async (req: Request, res: Response) => {
 
   await NoteFraisEntity.findByIdAndUpdate(id, {
     intitule_mission: update.intitule_mission,
-    agent: checkMatriculeAgent.matricule,
+    agent: checkMatriculeAgent._id,
     date_debut_mission: update.date_debut_mission,
     date_fin_mission: update.date_fin_mission,
     frais_mission: update.frais_mission,

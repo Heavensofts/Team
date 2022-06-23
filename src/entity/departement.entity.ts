@@ -6,17 +6,15 @@ interface IDepartement extends Document{
   directeur?: string;
   directeur_adjoint?: string;
   departement_hierarchique: string;
-  statut_deleted: string;
-  date_deleted?: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const DepartementSchema = new Schema({
 
   nom:{
     type: String,
-    required: true,
-    unique: true,
-    index: true
+    required: true
   },
 
   directeur:{
@@ -35,17 +33,6 @@ const DepartementSchema = new Schema({
     type: String,
     required: false
   },
-
-  date_deleted: {
-    type: Date,
-    required: false
-  },
-
-  statut_deleted: {
-    type: Schema.Types.String,
-    required: true,
-    ref: "Status",
-  }
 
 });
 

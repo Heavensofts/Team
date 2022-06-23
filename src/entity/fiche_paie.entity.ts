@@ -16,8 +16,8 @@ interface IFichePaie extends Document {
   loyer?: number;
   impot?: number;
   cotisation_sociale?: number;
-  statut_deleted: string;
-  date_deleted?: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const FichePaieSchema = new Schema({
@@ -64,7 +64,7 @@ const FichePaieSchema = new Schema({
   },
 
   agent: {
-    type: Schema.Types.String,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: 'Agent',
   },
@@ -103,17 +103,6 @@ const FichePaieSchema = new Schema({
     type: Number,
     required: false,
     default: 0,
-  },
-
-  date_deleted: {
-    type: Date,
-    required: false
-  },
-
-  statut_deleted: {
-    type: Schema.Types.String,
-    required: true,
-    ref: "Status",
   }
 
 });

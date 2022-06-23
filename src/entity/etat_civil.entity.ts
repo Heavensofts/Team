@@ -4,8 +4,8 @@ interface IEtatCivil extends Document{
   _id: string;
   nom: string;
   description?: string;
-  statut_deleted: string;
-  date_deleted?: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const EtatCivilSchema = new Schema({
@@ -22,16 +22,6 @@ const EtatCivilSchema = new Schema({
     required: false
   },
 
-  date_deleted: {
-    type: Date,
-    required: false
-  },
-
-  statut_deleted: {
-    type: Schema.Types.String,
-    required: true,
-    ref: "Status",
-  }
 
 }, {timestamps: true});
 

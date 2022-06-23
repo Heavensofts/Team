@@ -11,42 +11,7 @@ export const AddTypeDemande: Handler = async (req: Request, res: Response) => {
       .status(400)
       .send({ errorMessage: "Veuillez remplir les champ requis" });
   }
-
-  let checkStatut = await StatusEntity.findOne({ nom: "Displayed" });
-
-  if (!checkStatut) {
-
-    const myStatut = new StatusEntity({
-      nom: 'Displayed', description: "Le statut qui rend les éléments visibles", type_statut: 0
-    });
-
-    await myStatut.save().then((result) => {
-      checkStatut = result;
-    }).catch((error) => {
-      return res.status(500).send({
-        errorMessage: "Une erreur s'est produite, veuillez réessayer",
-      });
-    });
-  }
-
-  let checkStatut2 = await StatusEntity.findOne({nom: 'No-displayed'});
-  if(!checkStatut2){
-    const myStatut = new StatusEntity({
-      nom: 'No-displayed', 
-      description: "Le statut qui rend les éléments invisibles", 
-      type_statut: 0
-    });
   
-    await myStatut.save().then((result) => {
-      checkStatut = result;
-    }).catch((error) => {
-      console.log(error.message);
-      return res.status(500).send({
-        errorMessage: "Une erreur s'est produite, veuillez réessayer",
-      });
-    });
-  }
-
   const checTypeDemandeExist = await TypeDemandeEntity.findOne({
     nom: nom.toUpperCase(),
   });
@@ -55,7 +20,6 @@ export const AddTypeDemande: Handler = async (req: Request, res: Response) => {
     const typeContrat = new TypeDemandeEntity({
       nom: nom.toUpperCase(),
       description,
-      statut_deleted: checkStatut.nom
     });
 
     await typeContrat

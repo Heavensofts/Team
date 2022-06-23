@@ -12,41 +12,6 @@ export const AddTypeAccess: Handler = async (req: Request, res: Response) => {
       .send({ errorMessage: "Veuillez remplir les champ requis" });
   }
 
-  let checkStatut = await StatusEntity.findOne({ nom: "Displayed" });
-
-  if (!checkStatut) {
-
-    const myStatut = new StatusEntity({
-      nom: 'Displayed', description: "Le statut qui rend les éléments visibles", type_statut: 0
-    });
-
-    await myStatut.save().then((result) => {
-      checkStatut = result;
-    }).catch((error) => {
-      return res.status(500).send({
-        errorMessage: "Une erreur s'est produite, veuillez réessayer",
-      });
-    });
-  }
-
-  let checkStatut2 = await StatusEntity.findOne({nom: 'No-displayed'});
-  if(!checkStatut2){
-    const myStatut = new StatusEntity({
-      nom: 'No-displayed', 
-      description: "Le statut qui rend les éléments invisibles", 
-      type_statut: 0
-    });
-  
-    await myStatut.save().then((result) => {
-      checkStatut = result;
-    }).catch((error) => {
-      console.log(error.message);
-      return res.status(500).send({
-        errorMessage: "Une erreur s'est produite, veuillez réessayer",
-      });
-    });
-  }
-
   const checTypeAccessExist = await TypeAccessEntity.findOne({
     nom: nom.toUpperCase(),
   });
@@ -55,7 +20,6 @@ export const AddTypeAccess: Handler = async (req: Request, res: Response) => {
     const typeTache = new TypeAccessEntity({
       nom: nom.toUpperCase(),
       description,
-      statut_deleted: checkStatut.nom
     });
 
     await typeTache
@@ -75,9 +39,7 @@ export const AddTypeAccess: Handler = async (req: Request, res: Response) => {
 
 export const GetTypeAccess: Handler = async (req: Request, res: Response) => {
 
-  const checkStatut = await StatusEntity.findOne({nom: 'Displayed'});
-
-  await TypeAccessEntity.find({statut_deleted: checkStatut.nom})
+  await TypeAccessEntity.find()
     .then((typeAccess) => {
       if (!typeAccess) {
         return res.status(404).send({ errorMessage: "Aucun type access trouvé" });

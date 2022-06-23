@@ -9,8 +9,8 @@ interface IRecrutement extends Document {
   poste: string;
   recruteur: string[];
   nombre_poste: Number;
-  statut_deleted: string;
-  date_deleted?: Date;
+  createdAt: Date;
+  updatedAt: Date;  
 }
 
 const RecrutementSchema = new Schema({
@@ -33,7 +33,7 @@ const RecrutementSchema = new Schema({
   }],
 
   poste:{
-    type: String,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: 'Poste'
   },
@@ -58,17 +58,6 @@ const RecrutementSchema = new Schema({
     type: Date,
     required: true
   },
-
-  date_deleted: {
-    type: Date,
-    required: false
-  },
-
-  statut_deleted: {
-    type: Schema.Types.String,
-    required: true,
-    ref: "Status",
-  }
 
 });
 

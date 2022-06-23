@@ -12,41 +12,6 @@ export const AddGenre: Handler = async (req: Request, res: Response) => {
       .send({ errorMessage: "Veuillez remplir les champ requis" });
   }
 
-  let checkStatut = await StatusEntity.findOne({ nom: "Displayed" });
-
-  if (!checkStatut) {
-
-    const myStatut = new StatusEntity({
-      nom: 'Displayed', description: "Le statut qui rend les éléments visibles", type_statut: 0
-    });
-
-    await myStatut.save().then((result) => {
-      checkStatut = result;
-    }).catch((error) => {
-      return res.status(500).send({
-        errorMessage: "Une erreur s'est produite, veuillez réessayer",
-      });
-    });
-  }
-
-  let checkStatut2 = await StatusEntity.findOne({nom: 'No-displayed'});
-  if(!checkStatut2){
-    const myStatut = new StatusEntity({
-      nom: 'No-displayed', 
-      description: "Le statut qui rend les éléments invisibles", 
-      type_statut: 0
-    });
-  
-    await myStatut.save().then((result) => {
-      checkStatut = result;
-    }).catch((error) => {
-      console.log(error.message);
-      return res.status(500).send({
-        errorMessage: "Une erreur s'est produite, veuillez réessayer",
-      });
-    });
-  }
-
   const checkSexeExist = await GenreEntity.findOne({
     nom: nom.toUpperCase(),
   });
@@ -55,7 +20,6 @@ export const AddGenre: Handler = async (req: Request, res: Response) => {
     const sexe = new GenreEntity({
       nom: nom.toUpperCase(),
       description,
-      statut_deleted: checkStatut.nom
     });
 
     await sexe
@@ -76,9 +40,7 @@ export const AddGenre: Handler = async (req: Request, res: Response) => {
 
 export const GetGenres: Handler = async (req: Request, res: Response) => {
 
-  const checkStatut = await StatusEntity.findOne({nom: 'Displayed'});
-
-  await GenreEntity.find({statut_deleted: checkStatut.nom})
+  await GenreEntity.find()
     .then((genre) => {
       if (!genre) {
         return res.status(404).send({ errorMessage: "Aucun genre trouvé" });
@@ -135,7 +97,7 @@ export const UpdateGenre: Handler = async (req: Request, res: Response) => {
 
   await GenreEntity.findByIdAndUpdate(id, {
     nom: update.nom.toUpperCase(),
-    description: update.description,
+    description: update?.description,
   })
     .then((result) => {
       if (!result) {

@@ -7,9 +7,9 @@ interface INoteFrais extends Document {
   date_fin_mission: Date;
   frais_mission: number;
   document_mission?: string[];
-  statut_deleted: string;
-  date_deleted?: Date;
   devise: string
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const NoteFraisSchema = new Schema({
@@ -20,7 +20,7 @@ const NoteFraisSchema = new Schema({
   },
 
   agent:{
-    type: Schema.Types.String,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: 'Agent'
   },
@@ -49,18 +49,7 @@ const NoteFraisSchema = new Schema({
   document_mission: [{
     type: String,
     required: false
-  }],
-
-  date_deleted: {
-    type: Date,
-    required: false
-  },
-
-  statut_deleted: {
-    type: Schema.Types.String,
-    required: true,
-    ref: "Status",
-  }
+  }]
 
 });
 
