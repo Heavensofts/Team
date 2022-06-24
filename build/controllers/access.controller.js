@@ -23,35 +23,6 @@ const AddAccess = async (req, res) => {
             .status(400)
             .send({ errorMessage: "Veuillez remplir les champ requis" });
     }
-    let checkStatut = await status_entity_1.StatusEntity.findOne({ nom: "Displayed" });
-    if (!checkStatut) {
-        const myStatut = new status_entity_1.StatusEntity({
-            nom: 'Displayed', description: "Le statut qui rend les éléments visibles", type_statut: 0
-        });
-        await myStatut.save().then((result) => {
-            checkStatut = result;
-        }).catch((error) => {
-            return res.status(500).send({
-                errorMessage: "Une erreur s'est produite, veuillez réessayer",
-            });
-        });
-    }
-    let checkStatut2 = await status_entity_1.StatusEntity.findOne({ nom: 'No-displayed' });
-    if (!checkStatut2) {
-        const myStatut = new status_entity_1.StatusEntity({
-            nom: 'No-displayed',
-            description: "Le statut qui rend les éléments invisibles",
-            type_statut: 0
-        });
-        await myStatut.save().then((result) => {
-            checkStatut = result;
-        }).catch((error) => {
-            console.log(error.message);
-            return res.status(500).send({
-                errorMessage: "Une erreur s'est produite, veuillez réessayer",
-            });
-        });
-    }
     const checkTypeAccess = await type_access_entity_1.TypeAccessEntity.findOne({ ...type_access });
     console.log("My check access: ", checkTypeAccess);
     if (!checkTypeAccess) {
@@ -62,8 +33,7 @@ const AddAccess = async (req, res) => {
     const access = new access_entity_1.AccessEntity({
         type_access,
         composants,
-        actions,
-        statut_deleted: checkStatut.nom,
+        actions
     });
     await access
         .save()
@@ -81,6 +51,7 @@ exports.AddAccess = AddAccess;
 const GetAccess = async (req, res) => {
     const checkStatut = await status_entity_1.StatusEntity.findOne({ nom: 'Displayed' });
     await access_entity_1.AccessEntity.find({ statut_deleted: checkStatut.nom })
+        .populate({ path: "type_access", select: "nom -_id" })
         .then((access) => {
         if (!access) {
             return res.status(404).send({ errorMessage: "Aucun type demande trouvé" });
@@ -100,6 +71,7 @@ const GetAccessById = async (req, res) => {
         return res.status(400).send({ errorMessage: "Id invalid" });
     }
     await access_entity_1.AccessEntity.findById(id)
+        .populate({ path: "type_access", select: "nom -_id" })
         .then((typeDemande) => {
         if (!typeDemande) {
             return res.status(404).send({ errorMessage: "Aucun access trouvé" });

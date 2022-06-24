@@ -12,15 +12,6 @@ const NiveauEtudeSchema = new mongoose_1.Schema({
     description: {
         type: String,
         required: false
-    },
-    date_deleted: {
-        type: Date,
-        required: false
-    },
-    statut_deleted: {
-        type: mongoose_1.Schema.Types.String,
-        required: true,
-        ref: "Status",
     }
 }, { timestamps: true });
 exports.NiveauEtudeEntity = (0, mongoose_1.model)('NiveauEtude', NiveauEtudeSchema);

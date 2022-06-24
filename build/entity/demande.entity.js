@@ -5,17 +5,15 @@ const mongoose_1 = require("mongoose");
 const DemandeSchema = new mongoose_1.Schema({
     nom: {
         type: String,
-        required: true,
-        unique: true,
-        index: true
+        required: true
     },
     agent: {
-        type: mongoose_1.Schema.Types.String,
+        type: mongoose_1.Schema.Types.ObjectId,
         required: true,
         ref: 'Agent'
     },
     type_demande: {
-        type: mongoose_1.Schema.Types.String,
+        type: mongoose_1.Schema.Types.ObjectId,
         required: true,
         ref: 'TypeDemande'
     },
@@ -27,11 +25,6 @@ const DemandeSchema = new mongoose_1.Schema({
             type: String,
             required: false
         }],
-    statut_deleted: {
-        type: mongoose_1.Schema.Types.String,
-        required: true,
-        ref: 'Status'
-    }
 });
 exports.DemandeEntity = (0, mongoose_1.model)('Demande', DemandeSchema);
 //# sourceMappingURL=demande.entity.js.map

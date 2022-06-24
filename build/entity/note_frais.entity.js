@@ -8,7 +8,7 @@ const NoteFraisSchema = new mongoose_1.Schema({
         required: true
     },
     agent: {
-        type: mongoose_1.Schema.Types.String,
+        type: mongoose_1.Schema.Types.ObjectId,
         required: true,
         ref: 'Agent'
     },
@@ -32,16 +32,7 @@ const NoteFraisSchema = new mongoose_1.Schema({
     document_mission: [{
             type: String,
             required: false
-        }],
-    date_deleted: {
-        type: Date,
-        required: false
-    },
-    statut_deleted: {
-        type: mongoose_1.Schema.Types.String,
-        required: true,
-        ref: "Status",
-    }
+        }]
 });
 exports.NoteFraisEntity = (0, mongoose_1.model)('NoteFrais', NoteFraisSchema);
 //# sourceMappingURL=note_frais.entity.js.map

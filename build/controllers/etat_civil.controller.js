@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeleteEtatCivil = exports.UpdateEtatCivil = exports.GetEtatCivilById = exports.GetEtatCivils = exports.AddEtatCivil = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const etat_civil_entity_1 = require("../entity/etat_civil.entity");
-const status_entity_1 = require("../entity/status.entity");
 const AddEtatCivil = async (req, res) => {
     const { nom, description } = req.body;
     if (typeof nom === undefined || nom === null || !nom) {
@@ -14,43 +13,13 @@ const AddEtatCivil = async (req, res) => {
             .status(400)
             .send({ errorMessage: "Veuillez remplir les champ requis" });
     }
-    let checkStatut = await status_entity_1.StatusEntity.findOne({ nom: "Displayed" });
-    if (!checkStatut) {
-        const myStatut = new status_entity_1.StatusEntity({
-            nom: 'Displayed', description: "Le statut qui rend les éléments visibles", type_statut: 0
-        });
-        await myStatut.save().then((result) => {
-            checkStatut = result;
-        }).catch((error) => {
-            return res.status(500).send({
-                errorMessage: "Une erreur s'est produite, veuillez réessayer",
-            });
-        });
-    }
-    let checkStatut2 = await status_entity_1.StatusEntity.findOne({ nom: 'No-displayed' });
-    if (!checkStatut2) {
-        const myStatut = new status_entity_1.StatusEntity({
-            nom: 'No-displayed',
-            description: "Le statut qui rend les éléments invisibles",
-            type_statut: 0
-        });
-        await myStatut.save().then((result) => {
-            checkStatut = result;
-        }).catch((error) => {
-            console.log(error.message);
-            return res.status(500).send({
-                errorMessage: "Une erreur s'est produite, veuillez réessayer",
-            });
-        });
-    }
     const checEtatCivilExist = await etat_civil_entity_1.EtatCivilEntity.findOne({
         nom: nom.toUpperCase(),
     });
     if (!checEtatCivilExist) {
         const etatCivil = new etat_civil_entity_1.EtatCivilEntity({
             nom: nom.toUpperCase(),
-            description,
-            statut_deleted: checkStatut.nom
+            description
         });
         await etatCivil
             .save()
@@ -70,8 +39,7 @@ const AddEtatCivil = async (req, res) => {
 };
 exports.AddEtatCivil = AddEtatCivil;
 const GetEtatCivils = async (req, res) => {
-    const checkStatut = await status_entity_1.StatusEntity.findOne({ nom: 'Displayed' });
-    await etat_civil_entity_1.EtatCivilEntity.find({ statut_deleted: checkStatut.nom })
+    await etat_civil_entity_1.EtatCivilEntity.find()
         .then((etat_civil) => {
         if (!etat_civil) {
             return res.status(404).send({ errorMessage: "Aucun état-civil trouvé" });
@@ -121,7 +89,7 @@ const UpdateEtatCivil = async (req, res) => {
     }
     await etat_civil_entity_1.EtatCivilEntity.findByIdAndUpdate(id, {
         nom: update.nom.toUpperCase(),
-        description: update.description,
+        description: update?.description,
     })
         .then((result) => {
         if (!result) {

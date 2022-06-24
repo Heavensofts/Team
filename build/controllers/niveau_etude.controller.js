@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeleteNiveauEtude = exports.UpdateNiveauEtude = exports.GetNiveauById = exports.GetNiveauEtudes = exports.AddNiveauEtude = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const niveau_etude_entity_1 = require("../entity/niveau_etude.entity");
-const status_entity_1 = require("../entity/status.entity");
 const AddNiveauEtude = async (req, res) => {
     const { nom, description } = req.body;
     if (typeof nom === undefined || nom === null || !nom) {
@@ -14,43 +13,13 @@ const AddNiveauEtude = async (req, res) => {
             .status(400)
             .send({ errorMessage: "Veuillez remplir les champ requis" });
     }
-    let checkStatut = await status_entity_1.StatusEntity.findOne({ nom: "Displayed" });
-    if (!checkStatut) {
-        const myStatut = new status_entity_1.StatusEntity({
-            nom: 'Displayed', description: "Le statut qui rend les éléments visibles", type_statut: 0
-        });
-        await myStatut.save().then((result) => {
-            checkStatut = result;
-        }).catch((error) => {
-            return res.status(500).send({
-                errorMessage: "Une erreur s'est produite, veuillez réessayer",
-            });
-        });
-    }
-    let checkStatut2 = await status_entity_1.StatusEntity.findOne({ nom: 'No-displayed' });
-    if (!checkStatut2) {
-        const myStatut = new status_entity_1.StatusEntity({
-            nom: 'No-displayed',
-            description: "Le statut qui rend les éléments invisibles",
-            type_statut: 0
-        });
-        await myStatut.save().then((result) => {
-            checkStatut = result;
-        }).catch((error) => {
-            console.log(error.message);
-            return res.status(500).send({
-                errorMessage: "Une erreur s'est produite, veuillez réessayer",
-            });
-        });
-    }
     const checkNiveauEtudeExist = await niveau_etude_entity_1.NiveauEtudeEntity.findOne({
         nom: nom.toUpperCase(),
     });
     if (!checkNiveauEtudeExist) {
         const niveauEtude = new niveau_etude_entity_1.NiveauEtudeEntity({
             nom: nom.toUpperCase(),
-            description,
-            statut_deleted: checkStatut.nom
+            description
         });
         await niveauEtude
             .save()
@@ -70,8 +39,7 @@ const AddNiveauEtude = async (req, res) => {
 };
 exports.AddNiveauEtude = AddNiveauEtude;
 const GetNiveauEtudes = async (req, res) => {
-    const checkStatut = await status_entity_1.StatusEntity.findOne({ nom: 'Displayed' });
-    await niveau_etude_entity_1.NiveauEtudeEntity.find({ statut_deleted: checkStatut.nom })
+    await niveau_etude_entity_1.NiveauEtudeEntity.find()
         .then((niveau_etude) => {
         if (!niveau_etude) {
             return res.status(404).send({ errorMessage: "Aucun niveau d'étude trouvé" });
@@ -121,7 +89,7 @@ const UpdateNiveauEtude = async (req, res) => {
     }
     await niveau_etude_entity_1.NiveauEtudeEntity.findByIdAndUpdate(id, {
         nom: update.nom.toUpperCase(),
-        description: update.description,
+        description: update?.description,
     })
         .then((result) => {
         if (!result) {

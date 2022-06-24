@@ -27,43 +27,19 @@ const AddDemande = async (req, res) => {
             .status(400)
             .send({ errorMessage: "Veuillez remplir les champ requis" });
     }
-    let checkStatut = await status_entity_1.StatusEntity.findOne({ nom: "Displayed" });
-    if (!checkStatut) {
-        const myStatut = new status_entity_1.StatusEntity({
-            nom: 'Displayed', description: "Le statut qui rend les éléments visibles", type_statut: 0
-        });
-        await myStatut.save().then((result) => {
-            checkStatut = result;
-        }).catch((error) => {
-            console.log(error.message);
-            return res.status(500).send({
-                errorMessage: "Une erreur s'est produite, veuillez réessayer",
-            });
-        });
+    if (!mongoose_1.default.Types.ObjectId.isValid(agent)) {
+        return res.status(400).send({ errorMessage: "Id agent non valide" });
     }
-    let checkStatut2 = await status_entity_1.StatusEntity.findOne({ nom: 'No-displayed' });
-    if (!checkStatut2) {
-        const myStatut = new status_entity_1.StatusEntity({
-            nom: 'No-displayed',
-            description: "Le statut qui rend les éléments invisibles",
-            type_statut: 0
-        });
-        await myStatut.save().then((result) => {
-            checkStatut = result;
-        }).catch((error) => {
-            console.log(error.message);
-            return res.status(500).send({
-                errorMessage: "Une erreur s'est produite, veuillez réessayer",
-            });
-        });
-    }
-    const checkMatriculeAgent = await agent_entity_1.AgentEntity.findOne({ matricule: agent });
+    const checkMatriculeAgent = await agent_entity_1.AgentEntity.findById(agent);
     if (!checkMatriculeAgent) {
         return res.status(404).send({
             errorMessage: "Aucun agent correspondant",
         });
     }
-    const checkTypeDemande = await type_demande_entity_1.TypeDemandeEntity.findOne({ nom: type_demande.toUpperCase() });
+    if (!mongoose_1.default.Types.ObjectId.isValid(type_demande)) {
+        return res.status(400).send({ errorMessage: "Id type demande non valide" });
+    }
+    const checkTypeDemande = await type_demande_entity_1.TypeDemandeEntity.findById(type_demande);
     if (!checkTypeDemande) {
         return res.status(404).send({
             errorMessage: "Aucun type demande correspondant",
@@ -73,10 +49,9 @@ const AddDemande = async (req, res) => {
     const myUser = req['user'];
     const demande = new demande_entity_1.DemandeEntity({
         nom: nom.toUpperCase(),
-        agent: checkMatriculeAgent.matricule,
-        type_demande: checkTypeDemande.nom,
-        description,
-        statut_deleted: checkStatut.nom,
+        agent: checkMatriculeAgent._id,
+        type_demande: checkTypeDemande._id,
+        description
     });
     await demande
         .save()
@@ -94,6 +69,8 @@ exports.AddDemande = AddDemande;
 const GetDemandes = async (req, res) => {
     const checkStatut = await status_entity_1.StatusEntity.findOne({ nom: "Displayed" });
     await demande_entity_1.DemandeEntity.find({ statut_deleted: checkStatut.nom })
+        .populate({ path: "type_demande", select: "nom -_id" })
+        .populate({ path: "agent", select: ["prenom", "nom", "postnom"] })
         .then((demande) => {
         if (!demande) {
             return res.status(404).send({ errorMessage: "Aucune demande trouvée" });
@@ -113,6 +90,8 @@ const GetDemandeById = async (req, res) => {
         return res.status(400).send({ errorMessage: "Id invalid" });
     }
     await demande_entity_1.DemandeEntity.findById(id)
+        .populate({ path: "type_demande", select: "nom -_id" })
+        .populate({ path: "agent", select: ["prenom", "nom", "postnom"] })
         .then((demande) => {
         if (!demande) {
             return res.status(404).send({ errorMessage: "Aucune demande trouvée" });
@@ -146,13 +125,19 @@ const UpdateDemande = async (req, res) => {
             .status(400)
             .send({ errorMessage: "Veuillez remplir les champ requis" });
     }
-    const checkMatriculeAgent = await agent_entity_1.AgentEntity.findOne({ matricule: update.agent });
+    if (!mongoose_1.default.Types.ObjectId.isValid(update.agent)) {
+        return res.status(400).send({ errorMessage: "Id agent non valide" });
+    }
+    const checkMatriculeAgent = await agent_entity_1.AgentEntity.findById(update.agent);
     if (!checkMatriculeAgent) {
         return res.status(404).send({
             errorMessage: "Aucun agent correspondant",
         });
     }
-    const checkTypeDemande = await type_demande_entity_1.TypeDemandeEntity.findOne({ nom: update.type_demande.toUpperCase() });
+    if (!mongoose_1.default.Types.ObjectId.isValid(update.type_demande)) {
+        return res.status(400).send({ errorMessage: "Id type demande non valide" });
+    }
+    const checkTypeDemande = await type_demande_entity_1.TypeDemandeEntity.findById(update.type_demande);
     if (!checkTypeDemande) {
         return res.status(404).send({
             errorMessage: "Aucun type demande correspondant",
@@ -160,8 +145,8 @@ const UpdateDemande = async (req, res) => {
     }
     await demande_entity_1.DemandeEntity.findByIdAndUpdate(id, {
         nom: update.nom.toUpperCase(),
-        agent: checkMatriculeAgent.matricule,
-        type_demande: checkTypeDemande.nom,
+        agent: checkMatriculeAgent._id,
+        type_demande: checkTypeDemande._id,
         description: update.description
     })
         .then((result) => {

@@ -30,51 +30,28 @@ const AddConge = async (req, res) => {
             .status(400)
             .send({ errorMessage: "Veuillez remplir les champs requis" });
     }
-    let checkStatut = await status_entity_1.StatusEntity.findOne({ nom: "Displayed" });
-    if (!checkStatut) {
-        const myStatut = new status_entity_1.StatusEntity({
-            nom: 'Displayed', description: "Le statut qui rend les éléments visibles", type_statut: 0
-        });
-        await myStatut.save().then((result) => {
-            checkStatut = result;
-        }).catch((error) => {
-            console.log(error.message);
-            return res.status(500).send({
-                errorMessage: "Une erreur s'est produite, veuillez réessayer",
-            });
-        });
+    if (!mongoose_1.default.Types.ObjectId.isValid(agent)) {
+        return res.status(400).send({ errorMessage: "Id agent non valide" });
     }
-    let checkStatut2 = await status_entity_1.StatusEntity.findOne({ nom: 'No-displayed' });
-    if (!checkStatut2) {
-        const myStatut = new status_entity_1.StatusEntity({
-            nom: 'No-displayed',
-            description: "Le statut qui rend les éléments invisibles",
-            type_statut: 0
-        });
-        await myStatut.save().then((result) => {
-            checkStatut = result;
-        }).catch((error) => {
-            console.log(error.message);
-            return res.status(500).send({
-                errorMessage: "Une erreur s'est produite, veuillez réessayer",
-            });
-        });
-    }
-    const checkMatriculeAgent = await agent_entity_1.AgentEntity.findOne({ matricule: agent });
+    const checkMatriculeAgent = await agent_entity_1.AgentEntity.findById(agent);
     if (!checkMatriculeAgent) {
         return res.status(404).send({
             errorMessage: "Aucun agent correspondant",
         });
     }
-    const checkTypeConge = await type_conge_entity_1.TypeCongeEntity.findOne({
-        nom: type_conge.toUpperCase(),
-    });
+    if (!mongoose_1.default.Types.ObjectId.isValid(type_conge)) {
+        return res.status(400).send({ errorMessage: "Id type congé non valide" });
+    }
+    const checkTypeConge = await type_conge_entity_1.TypeCongeEntity.findById(type_conge);
     if (!checkTypeConge) {
         return res.status(404).send({
-            errorMessage: "Type contrat non correspondant",
+            errorMessage: "Type congé non correspondant",
         });
     }
-    const checkStatusConge = await status_entity_1.StatusEntity.findOne({ nom: status });
+    if (!mongoose_1.default.Types.ObjectId.isValid(status)) {
+        return res.status(400).send({ errorMessage: "Id status congé non valide" });
+    }
+    const checkStatusConge = await status_entity_1.StatusEntity.findById(status);
     if (!checkStatusConge) {
         return res.status(404).send({
             errorMessage: "status congé non correspondant",
@@ -83,10 +60,9 @@ const AddConge = async (req, res) => {
     const conge = new conge_entity_1.CongeEntity({
         date_debut,
         date_fin,
-        status: checkStatusConge.nom,
-        type_conge: checkTypeConge.nom,
-        agent: checkMatriculeAgent.matricule,
-        statut_deleted: checkStatut.nom,
+        status: checkStatusConge._id,
+        type_conge: checkTypeConge._id,
+        agent: checkMatriculeAgent._id,
     });
     await conge
         .save()
@@ -102,8 +78,10 @@ const AddConge = async (req, res) => {
 };
 exports.AddConge = AddConge;
 const GetConges = async (req, res) => {
-    const checkStatut = await status_entity_1.StatusEntity.findOne({ nom: "Displayed" });
-    await conge_entity_1.CongeEntity.find({ statut_deleted: checkStatut.nom })
+    await conge_entity_1.CongeEntity.find()
+        .populate({ path: "status", select: "nom -_id" })
+        .populate({ path: "type_conge", select: "nom -_id" })
+        .populate({ path: "agent", select: ["prenom", "nom", "postnom"] })
         .then((conge) => {
         if (!conge) {
             return res.status(404).send({ errorMessage: "Aucun congé trouvé" });
@@ -123,6 +101,9 @@ const GetCongeById = async (req, res) => {
         return res.status(400).send({ errorMessage: "Id invalid" });
     }
     await conge_entity_1.CongeEntity.findById(id)
+        .populate({ path: "status", select: "nom -_id" })
+        .populate({ path: "type_conge", select: "nom -_id" })
+        .populate({ path: "agent", select: ["prenom", "nom", "postnom"] })
         .then((conge) => {
         if (!conge) {
             return res.status(404).send({ errorMessage: "Aucun congé trouvé" });
@@ -161,29 +142,28 @@ const UpdateConge = async (req, res) => {
             .status(400)
             .send({ errorMessage: "Veuillez remplir les champs requis" });
     }
-    const checkStatut = await status_entity_1.StatusEntity.findOne({ nom: "Displayed" });
-    if (!checkStatut) {
-        return res.status(404).send({
-            errorMessage: "Aucun statut correspondant",
-        });
+    if (!mongoose_1.default.Types.ObjectId.isValid(update.agent)) {
+        return res.status(400).send({ errorMessage: "Id agent non valide" });
     }
-    const checkMatriculeAgent = await agent_entity_1.AgentEntity.findOne({
-        matricule: update.agent,
-    });
+    const checkMatriculeAgent = await agent_entity_1.AgentEntity.findById(update.agent);
     if (!checkMatriculeAgent) {
         return res.status(404).send({
             errorMessage: "Aucun agent correspondant",
         });
     }
-    const checkTypeConge = await type_conge_entity_1.TypeCongeEntity.findOne({
-        nom: update.type_conge.toUpperCase(),
-    });
+    if (!mongoose_1.default.Types.ObjectId.isValid(update.type_conge)) {
+        return res.status(400).send({ errorMessage: "Id type congé non valide" });
+    }
+    const checkTypeConge = await type_conge_entity_1.TypeCongeEntity.findById(update.type_conge);
     if (!checkTypeConge) {
         return res.status(404).send({
-            errorMessage: "Type contrat non correspondant",
+            errorMessage: "Type congé non correspondant",
         });
     }
-    const checkStatusConge = await status_entity_1.StatusEntity.findOne({ nom: update.status });
+    if (!mongoose_1.default.Types.ObjectId.isValid(update.status)) {
+        return res.status(400).send({ errorMessage: "Id status congé non valide" });
+    }
+    const checkStatusConge = await status_entity_1.StatusEntity.findById(update.status);
     if (!checkStatusConge) {
         return res.status(404).send({
             errorMessage: "status congé non correspondant",
@@ -192,9 +172,9 @@ const UpdateConge = async (req, res) => {
     await conge_entity_1.CongeEntity.findByIdAndUpdate(id, {
         date_debut: update.date_debut,
         date_fin: update.date_fin,
-        status: checkStatusConge.nom,
-        type_conge: checkTypeConge.nom,
-        agent: checkMatriculeAgent.matricule,
+        status: checkStatusConge._id,
+        type_conge: checkTypeConge._id,
+        agent: checkMatriculeAgent._id,
     })
         .then((result) => {
         if (!result) {

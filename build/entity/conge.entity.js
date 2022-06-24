@@ -4,17 +4,17 @@ exports.CongeEntity = void 0;
 const mongoose_1 = require("mongoose");
 const CongeSchema = new mongoose_1.Schema({
     type_conge: {
-        type: mongoose_1.Schema.Types.String,
+        type: mongoose_1.Schema.Types.ObjectId,
         required: true,
         ref: 'TypeConge'
     },
     status: {
-        type: mongoose_1.Schema.Types.String,
+        type: mongoose_1.Schema.Types.ObjectId,
         required: true,
         ref: 'Status'
     },
     agent: {
-        type: mongoose_1.Schema.Types.String,
+        type: mongoose_1.Schema.Types.ObjectId,
         required: true,
         ref: 'Agent'
     },
@@ -25,15 +25,6 @@ const CongeSchema = new mongoose_1.Schema({
     date_fin: {
         type: Date,
         required: true
-    },
-    date_deleted: {
-        type: Date,
-        required: false
-    },
-    statut_deleted: {
-        type: mongoose_1.Schema.Types.String,
-        required: true,
-        ref: "Status",
     }
 });
 exports.CongeEntity = (0, mongoose_1.model)('Conge', CongeSchema);

@@ -6,42 +6,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeleteGenre = exports.UpdateGenre = exports.GetGenreById = exports.GetGenres = exports.AddGenre = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const genre_entity_1 = require("../entity/genre.entity");
-const status_entity_1 = require("../entity/status.entity");
 const AddGenre = async (req, res) => {
     const { nom, description } = req.body;
     if (typeof nom === undefined || nom === null || !nom) {
         return res
             .status(400)
             .send({ errorMessage: "Veuillez remplir les champ requis" });
-    }
-    let checkStatut = await status_entity_1.StatusEntity.findOne({ nom: "Displayed" });
-    if (!checkStatut) {
-        const myStatut = new status_entity_1.StatusEntity({
-            nom: 'Displayed', description: "Le statut qui rend les éléments visibles", type_statut: 0
-        });
-        await myStatut.save().then((result) => {
-            checkStatut = result;
-        }).catch((error) => {
-            return res.status(500).send({
-                errorMessage: "Une erreur s'est produite, veuillez réessayer",
-            });
-        });
-    }
-    let checkStatut2 = await status_entity_1.StatusEntity.findOne({ nom: 'No-displayed' });
-    if (!checkStatut2) {
-        const myStatut = new status_entity_1.StatusEntity({
-            nom: 'No-displayed',
-            description: "Le statut qui rend les éléments invisibles",
-            type_statut: 0
-        });
-        await myStatut.save().then((result) => {
-            checkStatut = result;
-        }).catch((error) => {
-            console.log(error.message);
-            return res.status(500).send({
-                errorMessage: "Une erreur s'est produite, veuillez réessayer",
-            });
-        });
     }
     const checkSexeExist = await genre_entity_1.GenreEntity.findOne({
         nom: nom.toUpperCase(),
@@ -50,7 +20,6 @@ const AddGenre = async (req, res) => {
         const sexe = new genre_entity_1.GenreEntity({
             nom: nom.toUpperCase(),
             description,
-            statut_deleted: checkStatut.nom
         });
         await sexe
             .save()
@@ -70,8 +39,7 @@ const AddGenre = async (req, res) => {
 };
 exports.AddGenre = AddGenre;
 const GetGenres = async (req, res) => {
-    const checkStatut = await status_entity_1.StatusEntity.findOne({ nom: 'Displayed' });
-    await genre_entity_1.GenreEntity.find({ statut_deleted: checkStatut.nom })
+    await genre_entity_1.GenreEntity.find()
         .then((genre) => {
         if (!genre) {
             return res.status(404).send({ errorMessage: "Aucun genre trouvé" });
@@ -121,7 +89,7 @@ const UpdateGenre = async (req, res) => {
     }
     await genre_entity_1.GenreEntity.findByIdAndUpdate(id, {
         nom: update.nom.toUpperCase(),
-        description: update.description,
+        description: update?.description,
     })
         .then((result) => {
         if (!result) {

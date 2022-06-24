@@ -11,8 +11,7 @@ const AgentSchema = new mongoose_1.Schema({
     },
     nom: {
         type: String,
-        required: true,
-        index: true
+        required: true
     },
     postnom: {
         type: String,
@@ -20,8 +19,7 @@ const AgentSchema = new mongoose_1.Schema({
     },
     prenom: {
         type: String,
-        required: true,
-        index: true
+        required: true
     },
     date_naissance: {
         type: Date,
@@ -40,17 +38,17 @@ const AgentSchema = new mongoose_1.Schema({
         required: true
     },
     nationalite: {
-        type: mongoose_1.Schema.Types.String,
+        type: mongoose_1.Schema.Types.ObjectId,
         required: true,
         ref: 'Pays'
     },
     poste: {
-        type: mongoose_1.Schema.Types.String,
+        type: mongoose_1.Schema.Types.ObjectId,
         required: true,
         ref: 'Poste'
     },
     etat_civil: {
-        type: mongoose_1.Schema.Types.String,
+        type: mongoose_1.Schema.Types.ObjectId,
         required: true,
         ref: 'EtatCivil'
     },
@@ -60,12 +58,12 @@ const AgentSchema = new mongoose_1.Schema({
         enum: ["Oui", "Non"]
     },
     sexe: {
-        type: mongoose_1.Schema.Types.String,
+        type: mongoose_1.Schema.Types.ObjectId,
         required: true,
         ref: 'Genre'
     },
     niveau_etude: {
-        type: mongoose_1.Schema.Types.String,
+        type: mongoose_1.Schema.Types.ObjectId,
         required: true,
         ref: 'NiveauEtude'
     },

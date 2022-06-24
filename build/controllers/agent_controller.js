@@ -11,7 +11,6 @@ const genre_entity_1 = require("../entity/genre.entity");
 const niveau_etude_entity_1 = require("../entity/niveau_etude.entity");
 const pays_entity_1 = require("../entity/pays.entity");
 const poste_entity_1 = require("../entity/poste.entity");
-const status_entity_1 = require("../entity/status.entity");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const AddAgent = async (req, res) => {
     const { matricule, nom, postnom, prenom, date_naissance, lieu_naissance, telephone, nationalite, poste, etat_civil, status_syndical, sexe, niveau_etude, avatar, email, adresse, password } = req.body;
@@ -62,64 +61,46 @@ const AddAgent = async (req, res) => {
             .status(400)
             .send({ errorMessage: "Veuillez remplir les champ requis" });
     }
-    let checkStatut = await status_entity_1.StatusEntity.findOne({ nom: "Displayed" });
-    if (!checkStatut) {
-        const myStatut = new status_entity_1.StatusEntity({
-            nom: 'Displayed', description: "Le statut qui rend les éléments visibles", type_statut: 0
-        });
-        await myStatut.save().then((result) => {
-            checkStatut = result;
-        }).catch((error) => {
-            console.log(error.message);
-            return res.status(500).send({
-                errorMessage: "Une erreur s'est produite, veuillez réessayer",
-            });
-        });
+    if (!mongoose_1.default.Types.ObjectId.isValid(etat_civil)) {
+        return res.status(400).send({ errorMessage: "Id Etat  civil non valide" });
     }
-    let checkStatut2 = await status_entity_1.StatusEntity.findOne({ nom: 'No-displayed' });
-    if (!checkStatut2) {
-        const myStatut = new status_entity_1.StatusEntity({
-            nom: 'No-displayed',
-            description: "Le statut qui rend les éléments invisibles",
-            type_statut: 0
-        });
-        await myStatut.save().then((result) => {
-            checkStatut = result;
-        }).catch((error) => {
-            return res.status(500).send({
-                errorMessage: "Une erreur s'est produite, veuillez réessayer",
-            });
-        });
-    }
-    const checkEtatCivil = await etat_civil_entity_1.EtatCivilEntity.findOne({
-        nom: etat_civil.toUpperCase(),
-    });
+    const checkEtatCivil = await etat_civil_entity_1.EtatCivilEntity.findById(etat_civil);
     if (!checkEtatCivil) {
         return res.status(404).send({
             errorMessage: "Aucun etat-civil correspondant",
         });
     }
-    const checkPays = await pays_entity_1.PaysEntity.findOne({ nom: nationalite });
+    if (!mongoose_1.default.Types.ObjectId.isValid(nationalite)) {
+        return res.status(400).send({ errorMessage: "Id nationalité non valide" });
+    }
+    const checkPays = await pays_entity_1.PaysEntity.findById(nationalite);
     if (!checkPays) {
         return res.status(404).send({
             errorMessage: "Aucun pays correspondant",
         });
     }
-    const checkPoste = await poste_entity_1.PosteEntity.findOne({ nom: poste.toUpperCase() });
+    if (!mongoose_1.default.Types.ObjectId.isValid(poste)) {
+        return res.status(400).send({ errorMessage: "Id poste non valide" });
+    }
+    const checkPoste = await poste_entity_1.PosteEntity.findById(poste);
     if (!checkPoste) {
         return res.status(404).send({
             errorMessage: "Aucun poste correspondant",
         });
     }
-    const checkSexe = await genre_entity_1.GenreEntity.findOne({ nom: sexe.toUpperCase() });
+    if (!mongoose_1.default.Types.ObjectId.isValid(sexe)) {
+        return res.status(400).send({ errorMessage: "Id sexe non valide" });
+    }
+    const checkSexe = await genre_entity_1.GenreEntity.findById(sexe);
     if (!checkSexe) {
         return res.status(404).send({
             errorMessage: "Aucun sexe correspondant",
         });
     }
-    const checkNiveauEtude = await niveau_etude_entity_1.NiveauEtudeEntity.findOne({
-        nom: niveau_etude.toUpperCase(),
-    });
+    if (!mongoose_1.default.Types.ObjectId.isValid(niveau_etude)) {
+        return res.status(400).send({ errorMessage: "Id sexe non valide" });
+    }
+    const checkNiveauEtude = await niveau_etude_entity_1.NiveauEtudeEntity.findById(niveau_etude);
     if (!checkNiveauEtude) {
         return res.status(404).send({
             errorMessage: "Aucun niveau d'étude correspondant",
@@ -141,16 +122,15 @@ const AddAgent = async (req, res) => {
             date_naissance,
             lieu_naissance,
             telephone,
-            nationalite: checkPays.nom,
-            poste: checkPoste.nom,
-            etat_civil: checkEtatCivil.nom,
+            nationalite: checkPays._id,
+            poste: checkPoste._id,
+            etat_civil: checkEtatCivil._id,
             status_syndical,
-            sexe: checkSexe.nom,
-            niveau_etude: checkNiveauEtude.nom,
+            sexe: checkSexe._id,
+            niveau_etude: checkNiveauEtude._id,
             email,
             adresse,
-            password: pass,
-            statut_deleted: checkStatut.nom,
+            password: pass
         });
         await agent
             .save()
@@ -172,8 +152,12 @@ const AddAgent = async (req, res) => {
 };
 exports.AddAgent = AddAgent;
 const GetAgents = async (req, res) => {
-    const checkStatut = await status_entity_1.StatusEntity.findOne({ nom: "Displayed" });
-    await agent_entity_1.AgentEntity.find({ statut_deleted: checkStatut.nom })
+    await agent_entity_1.AgentEntity.find()
+        .populate({ path: "nationalite", select: "nom -_id" })
+        .populate({ path: "poste", select: "nom -_id" })
+        .populate({ path: "etat_civil", select: "nom -_id" })
+        .populate({ path: "sexe", select: "nom -_id" })
+        .populate({ path: "niveau_etude", select: "nom -_id" })
         .then((agent) => {
         if (!agent) {
             return res.status(404).send({ errorMessage: "Aucun angent trouvé" });
@@ -193,6 +177,11 @@ const GetAgentById = async (req, res) => {
         return res.status(400).send({ errorMessage: "Id invalid" });
     }
     await agent_entity_1.AgentEntity.findById(id)
+        .populate({ path: "nationalite", select: "nom -_id" })
+        .populate({ path: "poste", select: "nom -_id" })
+        .populate({ path: "etat_civil", select: "nom -_id" })
+        .populate({ path: "sexe", select: "nom -_id" })
+        .populate({ path: "niveau_etude", select: "nom -_id" })
         .then((agent) => {
         if (!agent) {
             return res.status(404).send({ errorMessage: "Aucun angent trouvé" });
@@ -256,39 +245,46 @@ const UpdateAgent = async (req, res) => {
             .status(400)
             .send({ errorMessage: "Veuillez remplir les champ requis" });
     }
-    const checkEtatCivil = await etat_civil_entity_1.EtatCivilEntity.findOne({
-        nom: update.etat_civil.toUpperCase(),
-    });
+    if (!mongoose_1.default.Types.ObjectId.isValid(update.etat_civil)) {
+        return res.status(400).send({ errorMessage: "Id Etat-civil non valide" });
+    }
+    const checkEtatCivil = await etat_civil_entity_1.EtatCivilEntity.findById(update.etat_civil);
     if (!checkEtatCivil) {
         return res.status(404).send({
             errorMessage: "Aucun etat-civil correspondant",
         });
     }
-    const checkPays = await pays_entity_1.PaysEntity.findOne({ nom: update.nationalite });
+    if (!mongoose_1.default.Types.ObjectId.isValid(update.nationalite)) {
+        return res.status(400).send({ errorMessage: "Id nationalité non valide" });
+    }
+    const checkPays = await pays_entity_1.PaysEntity.findById(update.nationalite);
     if (!checkPays) {
         return res.status(404).send({
             errorMessage: "Aucun pays correspondant",
         });
     }
-    const checkPoste = await poste_entity_1.PosteEntity.findOne({
-        nom: update.poste.toUpperCase(),
-    });
+    if (!mongoose_1.default.Types.ObjectId.isValid(update.poste)) {
+        return res.status(400).send({ errorMessage: "Id poste non valide" });
+    }
+    const checkPoste = await poste_entity_1.PosteEntity.findById(update.poste);
     if (!checkPoste) {
         return res.status(404).send({
             errorMessage: "Aucun poste correspondant",
         });
     }
-    const checkSexe = await genre_entity_1.GenreEntity.findOne({
-        nom: update.sexe.toUpperCase(),
-    });
+    if (!mongoose_1.default.Types.ObjectId.isValid(update.sexe)) {
+        return res.status(400).send({ errorMessage: "Id sexe non valide" });
+    }
+    const checkSexe = await genre_entity_1.GenreEntity.findById(update.sexe);
     if (!checkSexe) {
         return res.status(404).send({
             errorMessage: "Aucun sexe correspondant",
         });
     }
-    const checkNiveauEtude = await niveau_etude_entity_1.NiveauEtudeEntity.findOne({
-        nom: update.niveau_etude.toUpperCase(),
-    });
+    if (!mongoose_1.default.Types.ObjectId.isValid(update.niveau_etude)) {
+        return res.status(400).send({ errorMessage: "Id niveau d'étude non valide" });
+    }
+    const checkNiveauEtude = await niveau_etude_entity_1.NiveauEtudeEntity.findById(update.niveau_etude);
     if (!checkNiveauEtude) {
         return res.status(404).send({
             errorMessage: "Aucun niveau d'étude correspondant",
@@ -302,12 +298,12 @@ const UpdateAgent = async (req, res) => {
         date_naissance: update.date_naissance,
         lieu_naissance: update.lieu_naissance,
         telephone: update.telephone,
-        nationalite: checkPays.nom,
-        poste: checkPoste.nom,
-        etat_civil: checkEtatCivil.nom,
+        nationalite: checkPays._id,
+        poste: checkPoste._id,
+        etat_civil: checkEtatCivil._id,
         status_syndical: update.status_syndical,
-        sexe: checkSexe.nom,
-        niveau_etude: checkNiveauEtude.nom,
+        sexe: checkSexe._id,
+        niveau_etude: checkNiveauEtude._id,
         email: update.email,
         adresse: update.adresse,
     })

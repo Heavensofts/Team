@@ -20,34 +20,8 @@ const AddRole = async (req, res) => {
             .status(400)
             .send({ errorMessage: "Veuillez remplir les champ requis" });
     }
-    let checkStatut = await status_entity_1.StatusEntity.findOne({ nom: "Displayed" });
-    if (!checkStatut) {
-        const myStatut = new status_entity_1.StatusEntity({
-            nom: 'Displayed', description: "Le statut qui rend les éléments visibles", type_statut: 0
-        });
-        await myStatut.save().then((result) => {
-            checkStatut = result;
-        }).catch((error) => {
-            return res.status(500).send({
-                errorMessage: "Une erreur s'est produite, veuillez réessayer",
-            });
-        });
-    }
-    let checkStatut2 = await status_entity_1.StatusEntity.findOne({ nom: 'No-displayed' });
-    if (!checkStatut2) {
-        const myStatut = new status_entity_1.StatusEntity({
-            nom: 'No-displayed',
-            description: "Le statut qui rend les éléments invisibles",
-            type_statut: 0
-        });
-        await myStatut.save().then((result) => {
-            checkStatut = result;
-        }).catch((error) => {
-            console.log(error.message);
-            return res.status(500).send({
-                errorMessage: "Une erreur s'est produite, veuillez réessayer",
-            });
-        });
+    if (!mongoose_1.default.Types.ObjectId.isValid(access)) {
+        return res.status(400).send({ errorMessage: "Id access non valide" });
     }
     const checkAccess = await access_entity_1.AccessEntity.findById(access);
     if (!checkAccess) {
@@ -61,7 +35,6 @@ const AddRole = async (req, res) => {
             nom: nom.toUpperCase(),
             description,
             access: checkAccess._id,
-            statut_deleted: checkStatut.nom
         });
         await role
             .save()
@@ -131,6 +104,9 @@ const UpdateRole = async (req, res) => {
         return res
             .status(400)
             .send({ errorMessage: "Veuillez remplir les champ requis" });
+    }
+    if (!mongoose_1.default.Types.ObjectId.isValid(update.access)) {
+        return res.status(400).send({ errorMessage: "Id access non valide" });
     }
     const checkAccess = await access_entity_1.AccessEntity.findById(update.access);
     if (!checkAccess) {

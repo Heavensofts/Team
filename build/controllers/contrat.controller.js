@@ -7,7 +7,6 @@ exports.DeleteContrat = exports.UpdateContrat = exports.GetContratById = exports
 const mongoose_1 = __importDefault(require("mongoose"));
 const contrat_entity_1 = require("../entity/contrat.entity");
 const agent_entity_1 = require("../entity/agent.entity");
-const status_entity_1 = require("../entity/status.entity");
 const type_contrat_entity_1 = require("../entity/type_contrat.entity");
 const poste_entity_1 = require("../entity/poste.entity");
 const AddContrat = async (req, res) => {
@@ -24,49 +23,28 @@ const AddContrat = async (req, res) => {
             .status(400)
             .send({ errorMessage: "Veuillez remplir les champs requis" });
     }
-    let checkStatut = await status_entity_1.StatusEntity.findOne({ nom: "Displayed" });
-    if (!checkStatut) {
-        const myStatut = new status_entity_1.StatusEntity({
-            nom: 'Displayed', description: "Le statut qui rend les éléments visibles", type_statut: 0
-        });
-        await myStatut.save().then((result) => {
-            checkStatut = result;
-        }).catch((error) => {
-            console.log(error.message);
-            return res.status(500).send({
-                errorMessage: "Une erreur s'est produite, veuillez réessayer",
-            });
-        });
+    if (!mongoose_1.default.Types.ObjectId.isValid(agent)) {
+        return res.status(400).send({ errorMessage: "Id agent non valide" });
     }
-    let checkStatut2 = await status_entity_1.StatusEntity.findOne({ nom: 'No-displayed' });
-    if (!checkStatut2) {
-        const myStatut = new status_entity_1.StatusEntity({
-            nom: 'No-displayed',
-            description: "Le statut qui rend les éléments invisibles",
-            type_statut: 0
-        });
-        await myStatut.save().then((result) => {
-            checkStatut = result;
-        }).catch((error) => {
-            console.log(error.message);
-            return res.status(500).send({
-                errorMessage: "Une erreur s'est produite, veuillez réessayer",
-            });
-        });
-    }
-    const checkMatriculeAgent = await agent_entity_1.AgentEntity.findOne({ matricule: agent });
+    const checkMatriculeAgent = await agent_entity_1.AgentEntity.findById(agent);
     if (!checkMatriculeAgent) {
         return res.status(404).send({
             errorMessage: "Aucun agent correspondant",
         });
     }
-    const checkPoste = await poste_entity_1.PosteEntity.findOne({ nom: poste.toUpperCase() });
+    if (!mongoose_1.default.Types.ObjectId.isValid(poste)) {
+        return res.status(400).send({ errorMessage: "Id poste non valide" });
+    }
+    const checkPoste = await poste_entity_1.PosteEntity.findById(poste);
     if (!checkPoste) {
         return res.status(404).send({
-            errorMessage: "Poste non correspondant",
+            errorMessage: "Aucun poste correspondant",
         });
     }
-    const checkTypeContrat = await type_contrat_entity_1.TypeContratEntity.findOne({ nom: type_contrat.toUpperCase() });
+    if (!mongoose_1.default.Types.ObjectId.isValid(type_contrat)) {
+        return res.status(400).send({ errorMessage: "Id type contrat non valide" });
+    }
+    const checkTypeContrat = await type_contrat_entity_1.TypeContratEntity.findById(type_contrat);
     if (!checkTypeContrat) {
         return res.status(404).send({
             errorMessage: "Type contrat non correspondant",
@@ -79,10 +57,9 @@ const AddContrat = async (req, res) => {
         unite_horaire,
         date_debut_contrat,
         date_fin_contrat,
-        type_contrat: checkTypeContrat.nom,
-        poste: checkPoste.nom,
-        agent: checkMatriculeAgent.matricule,
-        statut_deleted: checkStatut.nom
+        type_contrat: checkTypeContrat._id,
+        poste: checkPoste._id,
+        agent: checkMatriculeAgent._id
     });
     await contrat
         .save()
@@ -98,8 +75,10 @@ const AddContrat = async (req, res) => {
 };
 exports.AddContrat = AddContrat;
 const GetContrats = async (req, res) => {
-    const checkStatut = await status_entity_1.StatusEntity.findOne({ nom: "Displayed" });
-    await contrat_entity_1.ContratEntity.find({ statut_deleted: checkStatut.nom })
+    await contrat_entity_1.ContratEntity.find()
+        .populate({ path: "agent", select: ["prenom", "nom", "postnom"] })
+        .populate({ path: "contrat", select: "nom -_id" })
+        .populate({ path: "poste", select: "nom -_id" })
         .then((contrat) => {
         if (!contrat) {
             return res
@@ -121,6 +100,9 @@ const GetContratById = async (req, res) => {
         return res.status(400).send({ errorMessage: "Id invalid" });
     }
     await contrat_entity_1.ContratEntity.findById(id)
+        .populate({ path: "agent", select: ["prenom", "nom", "postnom"] })
+        .populate({ path: "contrat", select: "nom -_id" })
+        .populate({ path: "poste", select: "nom -_id" })
         .then((contrat) => {
         if (!contrat) {
             return res
@@ -154,19 +136,28 @@ const UpdateContrat = async (req, res) => {
             .status(400)
             .send({ errorMessage: "Veuillez remplir les champs requis" });
     }
-    const checkMatriculeAgent = await agent_entity_1.AgentEntity.findOne({ matricule: update.agent });
+    if (!mongoose_1.default.Types.ObjectId.isValid(update.agent)) {
+        return res.status(400).send({ errorMessage: "Id agent non valide" });
+    }
+    const checkMatriculeAgent = await agent_entity_1.AgentEntity.findById(update.agent);
     if (!checkMatriculeAgent) {
         return res.status(404).send({
             errorMessage: "Aucun agent correspondant",
         });
     }
-    const checkPoste = await poste_entity_1.PosteEntity.findOne({ nom: update.poste.toUpperCase() });
+    if (!mongoose_1.default.Types.ObjectId.isValid(update.poste)) {
+        return res.status(400).send({ errorMessage: "Id poste non valide" });
+    }
+    const checkPoste = await poste_entity_1.PosteEntity.findById(update.poste);
     if (!checkPoste) {
         return res.status(404).send({
-            errorMessage: "Poste non correspondant",
+            errorMessage: "Aucun poste correspondant",
         });
     }
-    const checkTypeContrat = await type_contrat_entity_1.TypeContratEntity.findOne({ nom: update.type_contrat.toUpperCase() });
+    if (!mongoose_1.default.Types.ObjectId.isValid(update.type_contrat)) {
+        return res.status(400).send({ errorMessage: "Id type contrat non valide" });
+    }
+    const checkTypeContrat = await type_contrat_entity_1.TypeContratEntity.findById(update.type_contrat);
     if (!checkTypeContrat) {
         return res.status(404).send({
             errorMessage: "Type contrat non correspondant",
@@ -179,9 +170,9 @@ const UpdateContrat = async (req, res) => {
         unite_horaire: update.unite_horaire,
         date_debut_contrat: update.date_debut_contrat,
         date_fin_contrat: update.date_fin_contrat,
-        type_contrat: checkTypeContrat.nom,
-        poste: checkPoste.nom,
-        agent: checkMatriculeAgent.matricule
+        type_contrat: checkTypeContrat._id,
+        poste: checkPoste._id,
+        agent: checkMatriculeAgent._id
     })
         .then((result) => {
         if (!result) {

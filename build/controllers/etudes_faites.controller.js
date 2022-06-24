@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeleteEtudeFaites = exports.UpdateEtudeFaites = exports.GetEtudeFaitesById = exports.GetEtudeFaites = exports.AddEtudeFaites = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const etude_faites_entity_1 = require("../entity/etude_faites.entity");
-const status_entity_1 = require("../entity/status.entity");
 const AddEtudeFaites = async (req, res) => {
     const { annee_debut, annee_fin, etablissement, filiale, diplome_obtenu } = req.body;
     if (typeof annee_debut === undefined ||
@@ -28,42 +27,12 @@ const AddEtudeFaites = async (req, res) => {
             .status(400)
             .send({ errorMessage: "Veuillez remplir les champ requis" });
     }
-    let checkStatut = await status_entity_1.StatusEntity.findOne({ nom: "Displayed" });
-    if (!checkStatut) {
-        const myStatut = new status_entity_1.StatusEntity({
-            nom: 'Displayed', description: "Le statut qui rend les éléments visibles", type_statut: 0
-        });
-        await myStatut.save().then((result) => {
-            checkStatut = result;
-        }).catch((error) => {
-            return res.status(500).send({
-                errorMessage: "Une erreur s'est produite, veuillez réessayer",
-            });
-        });
-    }
-    let checkStatut2 = await status_entity_1.StatusEntity.findOne({ nom: 'No-displayed' });
-    if (!checkStatut2) {
-        const myStatut = new status_entity_1.StatusEntity({
-            nom: 'No-displayed',
-            description: "Le statut qui rend les éléments invisibles",
-            type_statut: 0
-        });
-        await myStatut.save().then((result) => {
-            checkStatut = result;
-        }).catch((error) => {
-            console.log(error.message);
-            return res.status(500).send({
-                errorMessage: "Une erreur s'est produite, veuillez réessayer",
-            });
-        });
-    }
     const etudeFaites = new etude_faites_entity_1.EtudeFaitesEntity({
         annee_debut: annee_debut,
         annee_fin: annee_fin,
         etablissement,
         filiale,
         diplome_obtenu,
-        statut_deleted: checkStatut.nom,
     });
     await etudeFaites
         .save()
@@ -79,8 +48,7 @@ const AddEtudeFaites = async (req, res) => {
 };
 exports.AddEtudeFaites = AddEtudeFaites;
 const GetEtudeFaites = async (req, res) => {
-    const checkStatut = await status_entity_1.StatusEntity.findOne({ nom: 'Displayed' });
-    await etude_faites_entity_1.EtudeFaitesEntity.find({ statut_deleted: checkStatut.nom })
+    await etude_faites_entity_1.EtudeFaitesEntity.find()
         .then((etudeFaites) => {
         if (!etudeFaites) {
             return res.status(404).send({ errorMessage: "Aucune étude faites trouvé" });

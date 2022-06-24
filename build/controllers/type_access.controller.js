@@ -6,42 +6,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeleteTypeAccess = exports.UpdateTypeAccess = exports.GetTypeAccessById = exports.GetTypeAccess = exports.AddTypeAccess = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const type_access_entity_1 = require("../entity/type_access.entity");
-const status_entity_1 = require("../entity/status.entity");
 const AddTypeAccess = async (req, res) => {
     const { nom, description } = req.body;
     if (typeof nom === undefined || nom === null || !nom) {
         return res
             .status(400)
             .send({ errorMessage: "Veuillez remplir les champ requis" });
-    }
-    let checkStatut = await status_entity_1.StatusEntity.findOne({ nom: "Displayed" });
-    if (!checkStatut) {
-        const myStatut = new status_entity_1.StatusEntity({
-            nom: 'Displayed', description: "Le statut qui rend les éléments visibles", type_statut: 0
-        });
-        await myStatut.save().then((result) => {
-            checkStatut = result;
-        }).catch((error) => {
-            return res.status(500).send({
-                errorMessage: "Une erreur s'est produite, veuillez réessayer",
-            });
-        });
-    }
-    let checkStatut2 = await status_entity_1.StatusEntity.findOne({ nom: 'No-displayed' });
-    if (!checkStatut2) {
-        const myStatut = new status_entity_1.StatusEntity({
-            nom: 'No-displayed',
-            description: "Le statut qui rend les éléments invisibles",
-            type_statut: 0
-        });
-        await myStatut.save().then((result) => {
-            checkStatut = result;
-        }).catch((error) => {
-            console.log(error.message);
-            return res.status(500).send({
-                errorMessage: "Une erreur s'est produite, veuillez réessayer",
-            });
-        });
     }
     const checTypeAccessExist = await type_access_entity_1.TypeAccessEntity.findOne({
         nom: nom.toUpperCase(),
@@ -50,7 +20,6 @@ const AddTypeAccess = async (req, res) => {
         const typeTache = new type_access_entity_1.TypeAccessEntity({
             nom: nom.toUpperCase(),
             description,
-            statut_deleted: checkStatut.nom
         });
         await typeTache
             .save()
@@ -69,8 +38,7 @@ const AddTypeAccess = async (req, res) => {
 };
 exports.AddTypeAccess = AddTypeAccess;
 const GetTypeAccess = async (req, res) => {
-    const checkStatut = await status_entity_1.StatusEntity.findOne({ nom: 'Displayed' });
-    await type_access_entity_1.TypeAccessEntity.find({ statut_deleted: checkStatut.nom })
+    await type_access_entity_1.TypeAccessEntity.find()
         .then((typeAccess) => {
         if (!typeAccess) {
             return res.status(404).send({ errorMessage: "Aucun type access trouvé" });

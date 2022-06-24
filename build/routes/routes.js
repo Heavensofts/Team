@@ -45,16 +45,9 @@ const router = (0, express_1.Router)();
  *        description:
  *          type: string
  *          description: La description du sexe
- *        statut_deleted:
- *          type: Statut
- *          description: Le statut de suppression
- *        date_deleted:
- *          type: Date
- *          description: La date de suppression
  *
  *      required:
  *        - nom
- *        - statut_deleted
  *
  *      example:
  *        nom: homme
@@ -394,16 +387,9 @@ router.delete("/api/statut/:id", status_controller_1.DeleteStatut);
  *        description:
  *          type: string
  *          description: La description du sexe
- *        statut_deleted:
- *          type: Statut
- *          description: Le statut de suppression
- *        date_deleted:
- *          type: Date
- *          description: La date de suppression
  *
  *      required:
  *        - nom
- *        - statut_deleted
  *
  *      example:
  *        nom: licence
@@ -572,16 +558,9 @@ router.delete("/api/niveau-etude/:id", niveau_etude_controller_1.DeleteNiveauEtu
  *        description:
  *          type: string
  *          description: La description de l'état civil
- *        statut_deleted:
- *          type: Statut
- *          description: Le statut de suppression
- *        date_deleted:
- *          type: Date
- *          description: La date de suppression
  *
  *      required:
  *        - nom
- *        - statut_deleted
  *
  *      example:
  *        nom: marié(e)
@@ -750,16 +729,9 @@ router.delete("/api/etat-civil/:id", etat_civil_controller_1.DeleteEtatCivil);
  *        description:
  *          type: string
  *          description: La description du type tache
- *        statut_deleted:
- *          type: Statut
- *          description: Le statut de suppression
- *        date_deleted:
- *          type: Date
- *          description: La date de suppression
  *
  *      required:
  *        - nom
- *        - statut_deleted
  *
  *      example:
  *        nom: Urgente
@@ -928,16 +900,9 @@ router.delete("/api/type-tache/:id", type_tache_controller_1.DeleteTypeTache);
  *        description:
  *          type: string
  *          description: La description du type access
- *        statut_deleted:
- *          type: Statut
- *          description: Le statut de suppression
- *        date_deleted:
- *          type: Date
- *          description: La date de suppression
  *
  *      required:
  *        - nom
- *        - statut_deleted
  *
  *      example:
  *        nom: Lecture
@@ -1106,16 +1071,9 @@ router.delete("/api/type-access/:id", type_access_controller_1.DeleteTypeAccess)
  *        description:
  *          type: string
  *          description: La description du type congé
- *        statut_deleted:
- *          type: Statut
- *          description: Le statut de suppression
- *        date_deleted:
- *          type: Date
- *          description: La date de suppression
  *
  *      required:
- *        - nom
- *        - statut_deleted
+ *        - no
  *
  *      example:
  *        nom: Annuel
@@ -1284,16 +1242,9 @@ router.delete("/api/type-conge/:id", type_conge_controller_1.DeleteTypeConge);
  *        description:
  *          type: string
  *          description: La description du type contrat
- *        statut_deleted:
- *          type: Statut
- *          description: Le statut de suppression
- *        date_deleted:
- *          type: Date
- *          description: La date de suppression
  *
  *      required:
  *        - nom
- *        - statut_deleted
  *
  *      example:
  *        nom: CD
@@ -1462,16 +1413,9 @@ router.delete("/api/type-contrat/:id", type_contrat_controller_1.DeleteTypeContr
  *        description:
  *          type: string
  *          description: La description du type demande
- *        statut_deleted:
- *          type: Statut
- *          description: Le statut de suppression
- *        date_deleted:
- *          type: Date
- *          description: La date de suppression
  *
  *      required:
  *        - nom
- *        - statut_deleted
  *
  *      example:
  *        nom: Demande de congé
@@ -1716,21 +1660,14 @@ router.post("/api/pays", pays_controller_1.AddPays);
  *          items:
  *            type: string
  *          description: les actions correspondantes
- *        date_deleted:
- *          type: Date
- *          description: La date de suppression
- *        statut_deleted:
- *          type: Statut
- *          description: Le statut de suppression
  *
  *      required:
  *        - type_access
  *        - composants
  *        - actions
- *        - statut_deleted
  *
  *      example:
- *        type_access: [Lecture, Ecriture]
+ *        type_access: [626ce682d34158f3515221cd, 626ce691d34158f3515221d1]
  *        composants: [Contrat, Role, Recrutement]
  *        actions: [Creation, Lecture, Modification, Suppression]
  *    AccessNotFound:
@@ -1913,12 +1850,6 @@ router.delete("/api/access/:id", access_controller_1.DeleteAccess);
  *          items:
  *            type: string
  *          description: les taches correspondantes au sein de l'entreprise
- *        date_deleted:
- *          type: Date
- *          description: La date de suppression
- *        statut_deleted:
- *          type: Statut
- *          description: Le statut de suppression
  *
  *      required:
  *        - date_debut
@@ -1927,12 +1858,11 @@ router.delete("/api/access/:id", access_controller_1.DeleteAccess);
  *        - entreprise
  *        - reference
  *        - taches
- *        - statut_deleted
  *
  *      example:
  *        date_debut: 2016-10-19
  *        date_fin: 2016-12-19
- *        poste: Stagiaire
+ *        poste: _id poste
  *        entreprise: BCC
  *        reference: {nom: me, telephone: +243892378711}
  *        taches: [Portail Bcc, Gestion, etc...]
@@ -2109,20 +2039,13 @@ router.delete("/api/experience-professionnelle/:id", experience_professionnelle_
  *        diplome_obtenu:
  *          type: string
  *          description: Le diplôme obtenu
- *        date_deleted:
- *          type: Date
- *          description: La date de suppression
- *        statut_deleted:
- *          type: Statut
- *          description: Le statut de suppression
  *
  *      required:
- *        - annee_debut
+ *        - annee_debu
  *        - annee_fin
  *        - etablissement
  *        - filiale
  *        - diplome_obtenu
- *        - statut_deleted
  *
  *      example:
  *        annee_debut: 2017-10-15
@@ -2300,19 +2223,12 @@ router.delete("/api/etude-faites/:id", etudes_faites_controller_1.DeleteEtudeFai
  *        directeur_adjoint:
  *          type: Agent
  *          description: Le directeur adjoint du département
- *        date_deleted:
- *          type: Date
- *          description: La date de suppression
- *        statut_deleted:
- *          type: Statut
- *          description: Le statut de suppression
  *
  *      required:
  *        - nom
  *
  *      example:
  *        nom: Juridique
- *        departement_hierarchique: temp
  *    DepartementNotFound:
  *      type: object
  *      properties:
@@ -2492,12 +2408,6 @@ router.delete("/api/departement/:id", departement_controller_1.DeleteDepartement
  *        role:
  *          type: Role
  *          description: Le rôle lié au poste
- *        date_deleted:
- *          type: Date
- *          description: La date de suppression
- *        statut_deleted:
- *          type: Statut
- *          description: Le statut de suppression
  *
  *      required:
  *        - nom
@@ -2509,8 +2419,8 @@ router.delete("/api/departement/:id", departement_controller_1.DeleteDepartement
  *        nom: Assistant juridique
  *        poste_hierarchique: Avocat
  *        disponibilite_poste: Poste non vacant
- *        departement: Juridique
- *        role: Assistant juridique
+ *        departement: _id_departement
+ *        role: _id_role
  *    PosteNotFound:
  *      type: object
  *      properties:
@@ -2678,20 +2588,15 @@ router.delete("/api/poste/:id", poste_controller_1.DeletePoste);
  *        access:
  *          type: Access
  *          description: L'Id de l'access
- *        date_deleted:
- *          type: Date
- *          description: La date de suppression
- *        statut_deleted:
- *          type: Statut
- *          description: Le statut de suppression
  *
  *      required:
  *        - nom
  *        - access
+ *
  *      example:
  *        nom: Assistant juridique
  *        description: Le role assistant juridique
- *        access: 626e3ec6b7e55a7a8598e188
+ *        access: 62b4cc4ab4a598bb293f5c27
  *    RoleNotFound:
  *      type: object
  *      properties:
@@ -2895,12 +2800,6 @@ router.delete("/api/role/:id", role_controller_1.DeleteRole);
  *        adresse:
  *          type: string
  *          description: L'adresse domicilaire de l'agent
- *        date_deleted:
- *          type: Date
- *          description: La date de suppression
- *        statut_deleted:
- *          type: Statut
- *          description: Le statut de suppression
  *
  *      required:
  *        - matricule
@@ -2919,6 +2818,7 @@ router.delete("/api/role/:id", role_controller_1.DeleteRole);
  *        - nationalite
  *        - email
  *        - password
+ *
  *      example:
  *        matricule: ag3214785
  *        nom: bakongo
@@ -2927,15 +2827,16 @@ router.delete("/api/role/:id", role_controller_1.DeleteRole);
  *        date_naissance: 1997-03-05
  *        lieu_naissance: Matadi
  *        telephone: +243892378711
- *        poste: ASSISTANT JURIDIQUE
- *        etat_civil: célibataire
- *        sexe: Homme
- *        niveau_etude: licence
+ *        poste: _id_poste
+ *        etat_civil: id_etat-civil
+ *        sexe: _id_sexe
+ *        niveau_etude: _id_niveau_etude
  *        adresse: Miao n°5-Kinshasa/Lemba
  *        email: herdiebakongo@gmail.com
  *        password: hello
  *        status_syndical: Oui
- *        nationalite: Congo (Rép. dém.)
+ *        nationalite: _id_pays
+ *
  *    AgentNotFound:
  *      type: object
  *      properties:
@@ -3309,12 +3210,6 @@ router.delete("/api/demande/:id", demande_controller_1.DeleteDemande);
  *          items:
  *            type: string
  *          description: Le frais de la mission
- *        date_deleted:
- *          type: Date
- *          description: La date de suppression
- *        statut_deleted:
- *          type: Statut
- *          description: Le statut de suppression
  *
  *      required:
  *        - intitule_mission
@@ -3325,7 +3220,7 @@ router.delete("/api/demande/:id", demande_controller_1.DeleteDemande);
  *        - devise
  *      example:
  *        intitule_mission: Ma mission de service
- *        agent: AG3214785
+ *        agent: _id_agent
  *        date_debut_mission: 2022-05-06
  *        date_fin_mission: 2022-05-17
  *        frais_mission: 500
@@ -3500,20 +3395,17 @@ router.delete("/api/note-frais/:id", note_frais_controller_1.DeleteNoteFrais);
  *        date_heure_depart:
  *          type: Date
  *          description: La date et l'heure de départ de l'agent
- *        date_deleted:
- *          type: Date
- *          description: La date de suppression
- *        statut_deleted:
- *          type: Statut
- *          description: Le statut de suppression
+ *
  *      required:
  *        - status
  *        - agent
+ *
  *      example:
  *        status: Présent
- *        agent: AG3214785
+ *        agent: _id_agent
  *        date_heure_arriver: 2022-05-06T10:33
  *        date_heure_depart: 2022-05-17T18:33
+ *
  *    PresenceNotFound:
  *      type: object
  *      properties:
@@ -3714,12 +3606,7 @@ router.delete("/api/presence/:id", presence_controller_1.DeletePresence);
  *        cotisation_sociale:
  *          type: number
  *          description: La cotisation sociale de l'agent
- *        date_deleted:
- *          type: Date
- *          description: La date de suppression
- *        statut_deleted:
- *          type: Statut
- *          description: Le statut de suppression
+ *
  *      required:
  *        - salaire_brut
  *        - salaire_net
@@ -3731,6 +3618,7 @@ router.delete("/api/presence/:id", presence_controller_1.DeletePresence);
  *        - prime
  *        - allocation_familiale
  *        - agent
+ *
  *      example:
  *        salaire_brut: 30
  *        salaire_net: 30
@@ -3741,7 +3629,8 @@ router.delete("/api/presence/:id", presence_controller_1.DeletePresence);
  *        remboursement: 2
  *        prime: 10
  *        allocation_familiale: Non
- *        agent: AG3214785
+ *        agent: _id_agent
+ *
  *    FichePaieNotFound:
  *      type: object
  *      properties:
@@ -3927,12 +3816,7 @@ router.delete("/api/fiche-paie/:id", fiche_paie_controller_1.DeleteFichePaie);
  *        date_fin_contrat:
  *          type: Date
  *          description: La date du fin de contrat de l'agent
- *        date_deleted:
- *          type: Date
- *          description: La date de suppression
- *        statut_deleted:
- *          type: Statut
- *          description: Le statut de suppression
+ *
  *      required:
  *        - type_contrat
  *        - poste
@@ -3942,16 +3826,18 @@ router.delete("/api/fiche-paie/:id", fiche_paie_controller_1.DeleteFichePaie);
  *        - date_debut_contrat
  *        - date_fin_contrat
  *        - agent
+ *
  *      example:
- *        type_contrat: CDD
+ *        type_contrat: _id_type_contrat
  *        description: le contrat de l'agent est à durée indeterminer
- *        poste: ASSISTANT JURIDIQUE
+ *        poste: _id_poste
  *        salaire_base: 300
  *        volume_horaire: 8
  *        unite_horaire: jour
  *        date_debut_contrat: 2022-05-11
  *        date_fin_contrat: 2035-05-11
- *        agent: AG3214785
+ *        agent: _id_agent
+ *
  *    ContratNotFound:
  *      type: object
  *      properties:
@@ -4125,24 +4011,21 @@ router.delete("/api/contrat/:id", contrat_controller_1.DeleteContrat);
  *        agent:
  *          type: string
  *          description: Le numéro matricule de l'agent
- *        date_deleted:
- *          type: Date
- *          description: La date de suppression
- *        statut_deleted:
- *          type: Statut
- *          description: Le statut de suppression
+ *
  *      required:
  *        - date_debut
  *        - date_fin
  *        - status
  *        - type_conge
  *        - agent
+ *
  *      example:
  *        date_debut: 2022-05-25
  *        date_fin: 2022-06-25
  *        status: Approuvé
- *        type_conge: Maladie
- *        agent: AG3214785
+ *        type_conge: _idi_type_conge
+ *        agent: _id_agent
+ *
  *    CongeNotFound:
  *      type: object
  *      properties:
@@ -4307,17 +4190,13 @@ router.delete("/api/conge/:id", conge_controller_1.DeleteConge);
  *        description:
  *          type: string
  *          description: La description de la langue
- *        date_deleted:
- *          type: Date
- *          description: La date de suppression
- *        statut_deleted:
- *          type: Statut
- *          description: Le statut de suppression
+ *
  *      required:
  *        - nom
  *      example:
  *        nom: français
  *        description: La langue française
+ *
  *    LangueNotFound:
  *      type: object
  *      properties:
@@ -4574,12 +4453,7 @@ router.delete("/api/langue/:id", langue_controller_1.DeleteLangue);
  *        telephone_ref:
  *          type: string
  *          description: Le téléphone du réfrent du candidat
- *        date_deleted:
- *          type: Date
- *          description: La date de suppression
- *        statut_deleted:
- *          type: Statut
- *          description: Le statut de suppression
+ *
  *      required:
  *        - nom
  *        - prenom
@@ -4613,8 +4487,8 @@ router.delete("/api/langue/:id", langue_controller_1.DeleteLangue);
  *        date_naissance: 1997-03-05
  *        lieu_naissance: Matadi
  *        telephone: +243892378711
- *        nationalite: Congo (Rép. dém.)
- *        etat_civil: Célibataire
+ *        nationalite: _id_pays
+ *        etat_civil: _id_etat-civil
  *        sexe: Homme
  *        email: herdiebakongo@gmail.com
  *        date_debut_etude: 2017-10-15
@@ -4633,6 +4507,7 @@ router.delete("/api/langue/:id", langue_controller_1.DeleteLangue);
  *        langue: Français
  *        parlee: Maternelle
  *        ecrit: Avancé
+ *
  *    CandidatNotFound:
  *      type: object
  *      properties:
@@ -4821,12 +4696,7 @@ router.delete("/api/candidat/:id", candidat_controller_1.DeleteCandidat);
  *        nombre_poste:
  *          type: number
  *          description: Le nombre de poste pourvu au recrutement
- *        date_deleted:
- *          type: Date
- *          description: La date de suppression
- *        statut_deleted:
- *          type: Statut
- *          description: Le statut de suppression
+ *
  *      required:
  *        - job_description
  *        - type_contrat
@@ -4836,15 +4706,17 @@ router.delete("/api/candidat/:id", candidat_controller_1.DeleteCandidat);
  *        - poste
  *        - recruteur
  *        - nombre_poste
+ *
  *      example:
  *        job_description: Poste pour un assistant juridique
  *        type_contrat: [626e25d79cc2db5a1b80494e, 626e25e59cc2db5a1b804952]
  *        candidat: [627f4b0db00d06736ce5a34b]
  *        debut_recrutement: 2022-03-05
  *        fin_recrutement: 2022-04-15
- *        poste: ASSISTANT JURIDIQUE
+ *        poste: 62737e888ddd636338c924a5
  *        recruteur: [62737e888ddd636338c924a5]
  *        nombre_poste: 3
+ *
  *    RecrutementNotFound:
  *      type: object
  *      properties:

@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AuthenticatedUser = exports.Login = void 0;
+exports.Logout = exports.AuthenticatedUser = exports.Login = void 0;
 const agent_entity_1 = require("../entity/agent.entity");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = require("jsonwebtoken");
@@ -49,4 +49,16 @@ const AuthenticatedUser = async (req, res) => {
     res.send({ user: req['user'] });
 };
 exports.AuthenticatedUser = AuthenticatedUser;
+const Logout = async (req, res) => {
+    try {
+        res.cookie("jwt", "", { maxAge: 0 });
+        res.send({
+            message: "deconnexion réussie",
+        });
+    }
+    catch (error) {
+        return res.status(401).send({ errorMessage: "Une erreur s'est produit veuillez réessayer" });
+    }
+};
+exports.Logout = Logout;
 //# sourceMappingURL=auth.controller.js.map

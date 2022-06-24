@@ -7,7 +7,6 @@ exports.DeleteNoteFrais = exports.UpdateNoteFrais = exports.GetNoteFraisById = e
 const mongoose_1 = __importDefault(require("mongoose"));
 const note_frais_entity_1 = require("../entity/note_frais.entity");
 const agent_entity_1 = require("../entity/agent.entity");
-const status_entity_1 = require("../entity/status.entity");
 const AddNoteFrais = async (req, res) => {
     const { intitule_mission, agent, date_debut_mission, date_fin_mission, devise, frais_mission } = req.body;
     if (typeof intitule_mission === undefined ||
@@ -32,36 +31,10 @@ const AddNoteFrais = async (req, res) => {
             .status(400)
             .send({ errorMessage: "Veuillez remplir les champ requis" });
     }
-    let checkStatut = await status_entity_1.StatusEntity.findOne({ nom: "Displayed" });
-    if (!checkStatut) {
-        const myStatut = new status_entity_1.StatusEntity({
-            nom: 'Displayed', description: "Le statut qui rend les éléments visibles", type_statut: 0
-        });
-        await myStatut.save().then((result) => {
-            checkStatut = result;
-        }).catch((error) => {
-            return res.status(500).send({
-                errorMessage: "Une erreur s'est produite, veuillez réessayer",
-            });
-        });
+    if (!mongoose_1.default.Types.ObjectId.isValid(agent)) {
+        return res.status(400).send({ errorMessage: "Id agent non valide" });
     }
-    let checkStatut2 = await status_entity_1.StatusEntity.findOne({ nom: 'No-displayed' });
-    if (!checkStatut) {
-        const myStatut = new status_entity_1.StatusEntity({
-            nom: 'No-displayed',
-            description: "Le statut qui rend les éléments invisibles",
-            type_statut: 0
-        });
-        await myStatut.save().then((result) => {
-            checkStatut = result;
-        }).catch((error) => {
-            console.log(error.message);
-            return res.status(500).send({
-                errorMessage: "Une erreur s'est produite, veuillez réessayer",
-            });
-        });
-    }
-    const checkMatriculeAgent = await agent_entity_1.AgentEntity.findOne({ matricule: agent });
+    const checkMatriculeAgent = await agent_entity_1.AgentEntity.findById(agent);
     if (!checkMatriculeAgent) {
         return res.status(404).send({
             errorMessage: "Aucun agent correspondant",
@@ -69,12 +42,11 @@ const AddNoteFrais = async (req, res) => {
     }
     const noteFrais = new note_frais_entity_1.NoteFraisEntity({
         intitule_mission,
-        agent: checkMatriculeAgent.matricule,
+        agent: checkMatriculeAgent._id,
         date_debut_mission,
         date_fin_mission,
         devise,
-        frais_mission,
-        statut_deleted: checkStatut.nom,
+        frais_mission
     });
     await noteFrais
         .save()
@@ -90,8 +62,7 @@ const AddNoteFrais = async (req, res) => {
 };
 exports.AddNoteFrais = AddNoteFrais;
 const GetNoteFrais = async (req, res) => {
-    const checkStatut = await status_entity_1.StatusEntity.findOne({ nom: "Displayed" });
-    await note_frais_entity_1.NoteFraisEntity.find({ statut_deleted: checkStatut.nom })
+    await note_frais_entity_1.NoteFraisEntity.find()
         .then((noteFrais) => {
         if (!noteFrais) {
             return res
@@ -156,9 +127,10 @@ const UpdateNoteFrais = async (req, res) => {
             .status(400)
             .send({ errorMessage: "Veuillez remplir les champ requis" });
     }
-    const checkMatriculeAgent = await agent_entity_1.AgentEntity.findOne({
-        matricule: update.agent,
-    });
+    if (!mongoose_1.default.Types.ObjectId.isValid(update.agent)) {
+        return res.status(400).send({ errorMessage: "Id agent non valide" });
+    }
+    const checkMatriculeAgent = await agent_entity_1.AgentEntity.findById(update.agent);
     if (!checkMatriculeAgent) {
         return res.status(404).send({
             errorMessage: "Aucun agent correspondant",
@@ -166,7 +138,7 @@ const UpdateNoteFrais = async (req, res) => {
     }
     await note_frais_entity_1.NoteFraisEntity.findByIdAndUpdate(id, {
         intitule_mission: update.intitule_mission,
-        agent: checkMatriculeAgent.matricule,
+        agent: checkMatriculeAgent._id,
         date_debut_mission: update.date_debut_mission,
         date_fin_mission: update.date_fin_mission,
         frais_mission: update.frais_mission,

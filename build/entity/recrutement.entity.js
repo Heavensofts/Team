@@ -18,7 +18,7 @@ const RecrutementSchema = new mongoose_1.Schema({
             ref: 'Candidat'
         }],
     poste: {
-        type: String,
+        type: mongoose_1.Schema.Types.ObjectId,
         required: true,
         ref: 'Poste'
     },
@@ -39,15 +39,6 @@ const RecrutementSchema = new mongoose_1.Schema({
         type: Date,
         required: true
     },
-    date_deleted: {
-        type: Date,
-        required: false
-    },
-    statut_deleted: {
-        type: mongoose_1.Schema.Types.String,
-        required: true,
-        ref: "Status",
-    }
 });
 exports.RecrutementEntity = (0, mongoose_1.model)('Recrutement', RecrutementSchema);
 //# sourceMappingURL=recrutement.entity.js.map

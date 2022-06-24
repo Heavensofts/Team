@@ -7,7 +7,6 @@ exports.DeleteFichePaie = exports.UpdateFichePaie = exports.GetFichePaieById = e
 const mongoose_1 = __importDefault(require("mongoose"));
 const fiche_paie_entity_1 = require("../entity/fiche_paie.entity");
 const agent_entity_1 = require("../entity/agent.entity");
-const status_entity_1 = require("../entity/status.entity");
 const AddFichePaie = async (req, res) => {
     const { salaire_brut, salaire_net, cession_salaire, saisie_salaire, acompte, heure_supplementaire, remboursement, agent, prime, allocation_familiale, nombre_enfants, loyer, impot, cotisation_sociale, } = req.body;
     if (typeof salaire_brut === undefined || !salaire_brut
@@ -24,36 +23,10 @@ const AddFichePaie = async (req, res) => {
             .status(400)
             .send({ errorMessage: "Veuillez remplir les champs requis" });
     }
-    let checkStatut = await status_entity_1.StatusEntity.findOne({ nom: "Displayed" });
-    if (!checkStatut) {
-        const myStatut = new status_entity_1.StatusEntity({
-            nom: 'Displayed', description: "Le statut qui rend les éléments visibles", type_statut: 0
-        });
-        await myStatut.save().then((result) => {
-            checkStatut = result;
-        }).catch((error) => {
-            return res.status(500).send({
-                errorMessage: "Une erreur s'est produite, veuillez réessayer",
-            });
-        });
+    if (!mongoose_1.default.Types.ObjectId.isValid(agent)) {
+        return res.status(400).send({ errorMessage: "Id agent non valide" });
     }
-    let checkStatut2 = await status_entity_1.StatusEntity.findOne({ nom: 'No-displayed' });
-    if (!checkStatut2) {
-        const myStatut = new status_entity_1.StatusEntity({
-            nom: 'No-displayed',
-            description: "Le statut qui rend les éléments invisibles",
-            type_statut: 0
-        });
-        await myStatut.save().then((result) => {
-            checkStatut = result;
-        }).catch((error) => {
-            console.log(error.message);
-            return res.status(500).send({
-                errorMessage: "Une erreur s'est produite, veuillez réessayer",
-            });
-        });
-    }
-    const checkMatriculeAgent = await agent_entity_1.AgentEntity.findOne({ matricule: agent });
+    const checkMatriculeAgent = await agent_entity_1.AgentEntity.findById(agent);
     if (!checkMatriculeAgent) {
         return res.status(404).send({
             errorMessage: "Aucun agent correspondant",
@@ -68,13 +41,12 @@ const AddFichePaie = async (req, res) => {
         heure_supplementaire,
         remboursement,
         prime,
-        agent: checkMatriculeAgent.matricule,
+        agent: checkMatriculeAgent._id,
         allocation_familiale,
         nombre_enfants,
         loyer,
         impot,
         cotisation_sociale,
-        statut_deleted: checkStatut.nom,
     });
     await fichePaie
         .save()
@@ -90,8 +62,8 @@ const AddFichePaie = async (req, res) => {
 };
 exports.AddFichePaie = AddFichePaie;
 const GetFichePaies = async (req, res) => {
-    const checkStatut = await status_entity_1.StatusEntity.findOne({ nom: "Displayed" });
-    await fiche_paie_entity_1.FichePaieEntity.find({ statut_deleted: checkStatut.nom })
+    await fiche_paie_entity_1.FichePaieEntity.find()
+        .populate({ path: "agent", select: ["prenom", "nom", "postnom"] })
         .then((fichePaie) => {
         if (!fichePaie) {
             return res
@@ -113,6 +85,7 @@ const GetFichePaieById = async (req, res) => {
         return res.status(400).send({ errorMessage: "Id invalid" });
     }
     await fiche_paie_entity_1.FichePaieEntity.findById(id)
+        .populate({ path: "agent", select: ["prenom", "nom", "postnom"] })
         .then((fichePaie) => {
         if (!fichePaie) {
             return res
@@ -160,7 +133,10 @@ const UpdateFichePaie = async (req, res) => {
             .status(400)
             .send({ errorMessage: "Veuillez remplir les champ requis" });
     }
-    const checkMatriculeAgent = await agent_entity_1.AgentEntity.findOne({ matricule: update.agent });
+    if (!mongoose_1.default.Types.ObjectId.isValid(update.agent)) {
+        return res.status(400).send({ errorMessage: "Id agent non valide" });
+    }
+    const checkMatriculeAgent = await agent_entity_1.AgentEntity.findById(update.agent);
     if (!checkMatriculeAgent) {
         return res.status(404).send({
             errorMessage: "Aucun agent correspondant",
@@ -175,7 +151,7 @@ const UpdateFichePaie = async (req, res) => {
         heure_supplementaire: update.heure_supplementaire,
         remboursement: update.remboursement,
         prime: update.prime,
-        agent: checkMatriculeAgent.matricule,
+        agent: checkMatriculeAgent._id,
         allocation_familiale: update.allocation_familiale,
         nombre_enfants: update.nombre_enfants,
         loyer: update.loyer,

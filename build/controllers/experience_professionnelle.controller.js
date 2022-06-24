@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeleteExperience = exports.UpdateExperience = exports.GetExperienceById = exports.GetExperiences = exports.AddExperience = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const experience_professionnelle_entity_1 = require("../entity/experience_professionnelle.entity");
-const status_entity_1 = require("../entity/status.entity");
 const AddExperience = async (req, res) => {
     const { date_debut, date_fin, poste, entreprise, reference, taches } = req.body;
     if (typeof date_debut === undefined ||
@@ -31,35 +30,6 @@ const AddExperience = async (req, res) => {
             .status(400)
             .send({ errorMessage: "Veuillez remplir les champ requis" });
     }
-    let checkStatut = await status_entity_1.StatusEntity.findOne({ nom: "Displayed" });
-    if (!checkStatut) {
-        const myStatut = new status_entity_1.StatusEntity({
-            nom: 'Displayed', description: "Le statut qui rend les éléments visibles", type_statut: 0
-        });
-        await myStatut.save().then((result) => {
-            checkStatut = result;
-        }).catch((error) => {
-            return res.status(500).send({
-                errorMessage: "Une erreur s'est produite, veuillez réessayer",
-            });
-        });
-    }
-    let checkStatut2 = await status_entity_1.StatusEntity.findOne({ nom: 'No-displayed' });
-    if (!checkStatut2) {
-        const myStatut = new status_entity_1.StatusEntity({
-            nom: 'No-displayed',
-            description: "Le statut qui rend les éléments invisibles",
-            type_statut: 0
-        });
-        await myStatut.save().then((result) => {
-            checkStatut = result;
-        }).catch((error) => {
-            console.log(error.message);
-            return res.status(500).send({
-                errorMessage: "Une erreur s'est produite, veuillez réessayer",
-            });
-        });
-    }
     const experience = new experience_professionnelle_entity_1.ExperienceProfessionnelleEntity({
         date_debut,
         date_fin,
@@ -67,7 +37,6 @@ const AddExperience = async (req, res) => {
         entreprise,
         reference,
         taches,
-        statut_deleted: checkStatut.nom,
     });
     await experience
         .save()
@@ -83,8 +52,7 @@ const AddExperience = async (req, res) => {
 };
 exports.AddExperience = AddExperience;
 const GetExperiences = async (req, res) => {
-    const checkStatut = await status_entity_1.StatusEntity.findOne({ nom: 'Displayed' });
-    await experience_professionnelle_entity_1.ExperienceProfessionnelleEntity.find({ statut_deleted: checkStatut.nom })
+    await experience_professionnelle_entity_1.ExperienceProfessionnelleEntity.find()
         .then((experience) => {
         if (!experience) {
             return res.status(404).send({ errorMessage: "Aucun type demande trouvé" });

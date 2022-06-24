@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeleteTypeConge = exports.UpdateTypeConge = exports.GetTypeCongeById = exports.GetTypeConges = exports.AddTypeConge = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const type_conge_entity_1 = require("../entity/type_conge.entity");
-const status_entity_1 = require("../entity/status.entity");
 const AddTypeConge = async (req, res) => {
     const { nom, description } = req.body;
     if (typeof nom === undefined || nom === null || !nom) {
@@ -14,43 +13,13 @@ const AddTypeConge = async (req, res) => {
             .status(400)
             .send({ errorMessage: "Veuillez remplir les champ requis" });
     }
-    let checkStatut = await status_entity_1.StatusEntity.findOne({ nom: "Displayed" });
-    if (!checkStatut) {
-        const myStatut = new status_entity_1.StatusEntity({
-            nom: 'Displayed', description: "Le statut qui rend les éléments visibles", type_statut: 0
-        });
-        await myStatut.save().then((result) => {
-            checkStatut = result;
-        }).catch((error) => {
-            return res.status(500).send({
-                errorMessage: "Une erreur s'est produite, veuillez réessayer",
-            });
-        });
-    }
-    let checkStatut2 = await status_entity_1.StatusEntity.findOne({ nom: 'No-displayed' });
-    if (!checkStatut2) {
-        const myStatut = new status_entity_1.StatusEntity({
-            nom: 'No-displayed',
-            description: "Le statut qui rend les éléments invisibles",
-            type_statut: 0
-        });
-        await myStatut.save().then((result) => {
-            checkStatut = result;
-        }).catch((error) => {
-            console.log(error.message);
-            return res.status(500).send({
-                errorMessage: "Une erreur s'est produite, veuillez réessayer",
-            });
-        });
-    }
     const checTypeCongeExist = await type_conge_entity_1.TypeCongeEntity.findOne({
         nom: nom.toUpperCase(),
     });
     if (!checTypeCongeExist) {
         const typeTache = new type_conge_entity_1.TypeCongeEntity({
             nom: nom.toUpperCase(),
-            description,
-            statut_deleted: checkStatut.nom
+            description
         });
         await typeTache
             .save()
@@ -69,8 +38,7 @@ const AddTypeConge = async (req, res) => {
 };
 exports.AddTypeConge = AddTypeConge;
 const GetTypeConges = async (req, res) => {
-    const checkStatut = await status_entity_1.StatusEntity.findOne({ nom: 'Displayed' });
-    await type_conge_entity_1.TypeCongeEntity.find({ statut_deleted: checkStatut.nom })
+    await type_conge_entity_1.TypeCongeEntity.find()
         .then((typeConge) => {
         if (!typeConge) {
             return res.status(404).send({ errorMessage: "Aucun type congé trouvé" });

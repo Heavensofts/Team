@@ -30,17 +30,17 @@ const CandidatSchema = new mongoose_1.Schema({
         required: true,
     },
     nationalite: {
-        type: mongoose_1.Schema.Types.String,
+        type: mongoose_1.Schema.Types.ObjectId,
         required: true,
         ref: "Pays",
     },
     etat_civil: {
-        type: mongoose_1.Schema.Types.String,
+        type: mongoose_1.Schema.Types.ObjectId,
         required: true,
         ref: "EtatCivil",
     },
     sexe: {
-        type: mongoose_1.Schema.Types.String,
+        type: mongoose_1.Schema.Types.ObjectId,
         required: true,
         ref: "Sexe",
     },
@@ -116,7 +116,7 @@ const CandidatSchema = new mongoose_1.Schema({
     },
     langue: [{
             nom: {
-                type: mongoose_1.Schema.Types.String,
+                type: mongoose_1.Schema.Types.ObjectId,
                 required: true,
                 ref: 'Langue'
             },
@@ -131,15 +131,6 @@ const CandidatSchema = new mongoose_1.Schema({
                 enum: ["Bon", "Intermediaire", "Moyen", "Avancé"]
             }
         }],
-    date_deleted: {
-        type: Date,
-        required: false
-    },
-    statut_deleted: {
-        type: mongoose_1.Schema.Types.String,
-        required: true,
-        ref: "Status",
-    }
 });
 exports.CandidatEntity = (0, mongoose_1.model)('Candidat', CandidatSchema);
 //# sourceMappingURL=candidat.entity.js.map

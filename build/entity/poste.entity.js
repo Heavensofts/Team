@@ -5,12 +5,10 @@ const mongoose_1 = require("mongoose");
 const PosteSchema = new mongoose_1.Schema({
     nom: {
         type: String,
-        required: true,
-        unique: true,
-        index: true
+        required: true
     },
     superviseur: {
-        type: mongoose_1.Schema.Types.String,
+        type: mongoose_1.Schema.Types.ObjectId,
         required: false,
         ref: 'Agent'
     },
@@ -23,7 +21,7 @@ const PosteSchema = new mongoose_1.Schema({
         required: true
     },
     departement: {
-        type: mongoose_1.Schema.Types.String,
+        type: mongoose_1.Schema.Types.ObjectId,
         required: true,
         ref: 'Departement'
     },
@@ -32,19 +30,10 @@ const PosteSchema = new mongoose_1.Schema({
         required: false
     },
     role: {
-        type: mongoose_1.Schema.Types.String,
+        type: mongoose_1.Schema.Types.ObjectId,
         required: true,
         ref: 'Role'
     },
-    date_deleted: {
-        type: Date,
-        required: false
-    },
-    statut_deleted: {
-        type: mongoose_1.Schema.Types.String,
-        required: true,
-        ref: "Status",
-    }
 });
 exports.PosteEntity = (0, mongoose_1.model)('Poste', PosteSchema);
 //# sourceMappingURL=poste.entity.js.map

@@ -39,7 +39,7 @@ const FichePaieSchema = new mongoose_1.Schema({
         default: 0,
     },
     agent: {
-        type: mongoose_1.Schema.Types.String,
+        type: mongoose_1.Schema.Types.ObjectId,
         required: true,
         ref: 'Agent',
     },
@@ -72,15 +72,6 @@ const FichePaieSchema = new mongoose_1.Schema({
         type: Number,
         required: false,
         default: 0,
-    },
-    date_deleted: {
-        type: Date,
-        required: false
-    },
-    statut_deleted: {
-        type: mongoose_1.Schema.Types.String,
-        required: true,
-        ref: "Status",
     }
 });
 exports.FichePaieEntity = (0, mongoose_1.model)('FichePaie', FichePaieSchema);

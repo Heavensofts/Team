@@ -33,15 +33,6 @@ const ExperienceProfessionnelleSchema = new mongoose_1.Schema({
             type: String,
             required: true
         }],
-    date_deleted: {
-        type: Date,
-        required: false
-    },
-    statut_deleted: {
-        type: mongoose_1.Schema.Types.String,
-        required: true,
-        ref: "Status",
-    }
 });
 exports.ExperienceProfessionnelleEntity = (0, mongoose_1.model)('ExperienceProfessionnelle', ExperienceProfessionnelleSchema);
 //# sourceMappingURL=experience_professionnelle.entity.js.map

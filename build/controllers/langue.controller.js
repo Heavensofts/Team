@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeleteLangue = exports.UpdateLangue = exports.GetLangueById = exports.GetLangues = exports.AddLangue = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const langue_entity_1 = require("../entity/langue.entity");
-const status_entity_1 = require("../entity/status.entity");
 const AddLangue = async (req, res) => {
     const { nom, description } = req.body;
     if (typeof nom === undefined || typeof nom == null || !nom) {
@@ -15,40 +14,10 @@ const AddLangue = async (req, res) => {
             .send({ errorMessage: "Veuillez remplir les champs requis" });
     }
     const checkLangue = await langue_entity_1.LangueEntity.findOne({ nom: nom.toUpperCase() });
-    let checkStatut = await status_entity_1.StatusEntity.findOne({ nom: "Displayed" });
-    if (!checkStatut) {
-        const myStatut = new status_entity_1.StatusEntity({
-            nom: 'Displayed', description: "Le statut qui rend les éléments visibles", type_statut: 0
-        });
-        await myStatut.save().then((result) => {
-            checkStatut = result;
-        }).catch((error) => {
-            return res.status(500).send({
-                errorMessage: "Une erreur s'est produite, veuillez réessayer",
-            });
-        });
-    }
-    let checkStatut2 = await status_entity_1.StatusEntity.findOne({ nom: 'No-displayed' });
-    if (!checkStatut2) {
-        const myStatut = new status_entity_1.StatusEntity({
-            nom: 'No-displayed',
-            description: "Le statut qui rend les éléments invisibles",
-            type_statut: 0
-        });
-        await myStatut.save().then((result) => {
-            checkStatut = result;
-        }).catch((error) => {
-            console.log(error.message);
-            return res.status(500).send({
-                errorMessage: "Une erreur s'est produite, veuillez réessayer",
-            });
-        });
-    }
     if (!checkLangue) {
         const langue = new langue_entity_1.LangueEntity({
             nom: nom.toUpperCase(),
-            description,
-            statut_deleted: checkStatut.nom,
+            description
         });
         await langue
             .save()
@@ -70,8 +39,7 @@ const AddLangue = async (req, res) => {
 };
 exports.AddLangue = AddLangue;
 const GetLangues = async (req, res) => {
-    const checkStatut = await status_entity_1.StatusEntity.findOne({ nom: "Displayed" });
-    await langue_entity_1.LangueEntity.find({ statut_deleted: checkStatut.nom })
+    await langue_entity_1.LangueEntity.find()
         .then((langue) => {
         if (!langue) {
             return res.status(404).send({ errorMessage: "Aucune langue trouvée" });

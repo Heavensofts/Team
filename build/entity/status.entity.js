@@ -5,9 +5,7 @@ const mongoose_1 = require("mongoose");
 const StatusSchema = new mongoose_1.Schema({
     nom: {
         type: String,
-        required: true,
-        index: true,
-        unique: true
+        required: true
     },
     description: {
         type: String,
@@ -18,10 +16,6 @@ const StatusSchema = new mongoose_1.Schema({
         required: true,
         default: 0
     },
-    date_deleted: {
-        type: Date,
-        required: false,
-    }
 }, { timestamps: true });
 exports.StatusEntity = (0, mongoose_1.model)("Status", StatusSchema);
 //# sourceMappingURL=status.entity.js.map

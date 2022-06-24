@@ -4,12 +4,12 @@ exports.ContratEntity = void 0;
 const mongoose_1 = require("mongoose");
 const contratSchema = new mongoose_1.Schema({
     agent: {
-        type: mongoose_1.Schema.Types.String,
+        type: mongoose_1.Schema.Types.ObjectId,
         required: true,
         ref: 'Agent'
     },
     type_contrat: {
-        type: mongoose_1.Schema.Types.String,
+        type: mongoose_1.Schema.Types.ObjectId,
         required: true,
         ref: 'TypeContrat'
     },
@@ -18,7 +18,7 @@ const contratSchema = new mongoose_1.Schema({
         required: false
     },
     poste: {
-        type: mongoose_1.Schema.Types.String,
+        type: mongoose_1.Schema.Types.ObjectId,
         required: true,
         ref: 'Poste'
     },
@@ -42,15 +42,6 @@ const contratSchema = new mongoose_1.Schema({
         type: Date,
         required: false
     },
-    date_deleted: {
-        type: Date,
-        required: false
-    },
-    statut_deleted: {
-        type: mongoose_1.Schema.Types.String,
-        required: true,
-        ref: "Status",
-    }
 });
 exports.ContratEntity = (0, mongoose_1.model)('Contrat', contratSchema);
 //# sourceMappingURL=contrat.entity.js.map

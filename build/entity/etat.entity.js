@@ -14,7 +14,7 @@ const EtatSchema = new mongoose_1.Schema({
             required: false
         }],
     status: {
-        type: mongoose_1.Schema.Types.String,
+        type: mongoose_1.Schema.Types.ObjectId,
         required: true,
         ref: 'Status'
     }

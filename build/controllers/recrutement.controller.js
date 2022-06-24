@@ -16,12 +16,6 @@ const AddRecrutement = async (req, res) => {
     if (typeof job_description === undefined ||
         typeof job_description == null ||
         !job_description ||
-        typeof type_contrat === undefined ||
-        typeof type_contrat == null ||
-        !type_contrat ||
-        typeof candidat === undefined ||
-        typeof candidat == null ||
-        !candidat ||
         typeof debut_recrutement === undefined ||
         typeof debut_recrutement == null ||
         !debut_recrutement ||
@@ -31,42 +25,10 @@ const AddRecrutement = async (req, res) => {
         typeof poste === undefined ||
         poste === null ||
         !poste ||
-        typeof recruteur === undefined ||
-        recruteur === null ||
-        !recruteur ||
-        typeof nombre_poste === undefined) {
+        typeof nombre_poste === undefined || typeof nombre_poste === null || !nombre_poste) {
         return res
             .status(400)
             .send({ errorMessage: "Veuillez remplir les champs requis" });
-    }
-    let checkStatut = await status_entity_1.StatusEntity.findOne({ nom: "Displayed" });
-    if (!checkStatut) {
-        const myStatut = new status_entity_1.StatusEntity({
-            nom: 'Displayed', description: "Le statut qui rend les éléments visibles", type_statut: 0
-        });
-        await myStatut.save().then((result) => {
-            checkStatut = result;
-        }).catch((error) => {
-            return res.status(500).send({
-                errorMessage: "Une erreur s'est produite, veuillez réessayer",
-            });
-        });
-    }
-    let checkStatut2 = await status_entity_1.StatusEntity.findOne({ nom: 'No-displayed' });
-    if (!checkStatut2) {
-        const myStatut = new status_entity_1.StatusEntity({
-            nom: 'No-displayed',
-            description: "Le statut qui rend les éléments invisibles",
-            type_statut: 0
-        });
-        await myStatut.save().then((result) => {
-            checkStatut = result;
-        }).catch((error) => {
-            console.log(error.message);
-            return res.status(500).send({
-                errorMessage: "Une erreur s'est produite, veuillez réessayer",
-            });
-        });
     }
     var myCand = [];
     candidat.map(async (c) => {
@@ -114,12 +76,13 @@ const AddRecrutement = async (req, res) => {
             errorMessage: "Aucun type contrat correspondant",
         });
     }
-    const checkPoste = await poste_entity_1.PosteEntity.findOne({
-        nom: poste.toUpperCase(),
-    });
+    if (!mongoose_1.default.Types.ObjectId.isValid(poste)) {
+        return res.status(400).send({ errorMessage: "Id poste non valide" });
+    }
+    const checkPoste = await poste_entity_1.PosteEntity.findById(poste);
     if (!checkPoste) {
         return res.status(404).send({
-            errorMessage: "poste non correspondant",
+            errorMessage: "Aucun poste correspondant",
         });
     }
     const recrutement = new recrutement_entity_1.RecrutementEntity({
@@ -127,11 +90,10 @@ const AddRecrutement = async (req, res) => {
         debut_recrutement,
         fin_recrutement,
         nombre_poste,
-        poste: checkPoste.nom,
+        poste: checkPoste._id,
         type_contrat: myTypeContrat,
         candidat: myCand,
         recruteur: myRecruteur,
-        statut_deleted: checkStatut.nom
     });
     await recrutement
         .save()
@@ -243,12 +205,13 @@ const UpdateRecrutement = async (req, res) => {
         }
         myTypeContrat.push(type_con._id);
     });
-    const checkPoste = await poste_entity_1.PosteEntity.findOne({
-        nom: update.poste.toUpperCase(),
-    });
+    if (!mongoose_1.default.Types.ObjectId.isValid(update.poste)) {
+        return res.status(400).send({ errorMessage: "Id poste non valide" });
+    }
+    const checkPoste = await poste_entity_1.PosteEntity.findById(update.poste);
     if (!checkPoste) {
         return res.status(404).send({
-            errorMessage: "poste non correspondant",
+            errorMessage: "Aucun poste correspondant",
         });
     }
     await recrutement_entity_1.RecrutementEntity.findByIdAndUpdate(id, {
@@ -256,7 +219,7 @@ const UpdateRecrutement = async (req, res) => {
         debut_recrutement: update.debut_recrutement,
         fin_recrutement: update.fin_recrutement,
         nombre_poste: update.nombre_poste,
-        poste: checkPoste.nom,
+        poste: checkPoste._id,
         type_contrat: myTypeContrat,
         candidat: myCand,
         recruteur: myRecruteur

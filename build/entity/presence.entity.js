@@ -17,19 +17,10 @@ const PresenceSchema = new mongoose_1.Schema({
         required: false
     },
     agent: {
-        type: mongoose_1.Schema.Types.String,
+        type: mongoose_1.Schema.Types.ObjectId,
         required: true,
         ref: 'Agent'
     },
-    date_deleted: {
-        type: Date,
-        required: false
-    },
-    statut_deleted: {
-        type: mongoose_1.Schema.Types.String,
-        required: true,
-        ref: "Status",
-    }
 }, { timestamps: true });
 exports.PresenceEntity = (0, mongoose_1.model)('Presence', PresenceSchema);
 //# sourceMappingURL=presence.entity.js.map
