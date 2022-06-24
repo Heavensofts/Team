@@ -17,29 +17,29 @@ export const AddDepartement: Handler = async (req: Request, res: Response) => {
       .send({ errorMessage: "Veuillez remplir les champ requis" });
   }
 
-  if (!mongoose.Types.ObjectId.isValid(directeur)) {
-    return res.status(400).send({ errorMessage: "Id directeur non valide" });
-  }
+  // if (!mongoose.Types.ObjectId.isValid(directeur)) {
+  //   return res.status(400).send({ errorMessage: "Id directeur non valide" });
+  // }
 
-  const checkDirecteur = await AgentEntity.findById(directeur);
+  // const checkDirecteur = await AgentEntity.findById(directeur);
 
-  if (!checkDirecteur) {
-    return res.status(404).send({
-      errorMessage: "Aucun directeur correspondant",
-    });
-  }
+  // if (!checkDirecteur) {
+  //   return res.status(404).send({
+  //     errorMessage: "Aucun directeur correspondant",
+  //   });
+  // }
 
-  if (!mongoose.Types.ObjectId.isValid(directeur_adjoint)) {
-    return res.status(400).send({ errorMessage: "Id directeur adjoint non valide" });
-  }
+  // if (!mongoose.Types.ObjectId.isValid(directeur_adjoint)) {
+  //   return res.status(400).send({ errorMessage: "Id directeur adjoint non valide" });
+  // }
 
-  const checkDirecteurAdjoint = await AgentEntity.findById(directeur_adjoint);
+  // const checkDirecteurAdjoint = await AgentEntity.findById(directeur_adjoint);
 
-  if (!checkDirecteurAdjoint) {
-    return res.status(404).send({
-      errorMessage: "Aucun directeur adjoint correspondant",
-    });
-  }
+  // if (!checkDirecteurAdjoint) {
+  //   return res.status(404).send({
+  //     errorMessage: "Aucun directeur adjoint correspondant",
+  //   });
+  // }
 
   const checkDepartement = await DepartementEntity.findOne({nom: nom.toUpperCase()})
 
@@ -48,8 +48,8 @@ export const AddDepartement: Handler = async (req: Request, res: Response) => {
     const departement = new DepartementEntity({
       nom: nom.toUpperCase(), 
       departement_hierarchique,
-      directeur: checkDirecteur._id,
-      directeur_adjoint: checkDirecteurAdjoint._id
+      // directeur: checkDirecteur._id,
+      // directeur_adjoint: checkDirecteurAdjoint._id
     });
   
     await departement
@@ -237,11 +237,11 @@ export const UpdateDepartement: Handler = async (req: Request, res: Response) =>
       .send({ errorMessage: "Veuillez remplir les champ requis" });
   }
 
-  if (!mongoose.Types.ObjectId.isValid(update.directeur)) {
+  if (!mongoose.Types.ObjectId.isValid(update?.directeur)) {
     return res.status(400).send({ errorMessage: "Id directeur non valide" });
   }
 
-  const checkDirecteur = await AgentEntity.findById(update.directeur);
+  const checkDirecteur = await AgentEntity.findById(update?.directeur);
 
   if (!checkDirecteur) {
     return res.status(404).send({
@@ -249,11 +249,11 @@ export const UpdateDepartement: Handler = async (req: Request, res: Response) =>
     });
   }
 
-  if (!mongoose.Types.ObjectId.isValid(update.directeur_adjoint)) {
+  if (!mongoose.Types.ObjectId.isValid(update?.directeur_adjoint)) {
     return res.status(400).send({ errorMessage: "Id directeur adjoint non valide" });
   }
 
-  const checkDirecteurAdjoint = await AgentEntity.findById(update.directeur_adjoint);
+  const checkDirecteurAdjoint = await AgentEntity.findById(update?.directeur_adjoint);
 
   if (!checkDirecteurAdjoint) {
     return res.status(404).send({
@@ -264,8 +264,8 @@ export const UpdateDepartement: Handler = async (req: Request, res: Response) =>
   await DepartementEntity.findByIdAndUpdate(id, {
     nom: update.nom.toUpperCase(),
     departement: update.departement_hierarchique,
-    directeur: checkDirecteur._id,
-    directeur_adjoint: checkDirecteurAdjoint._id
+    directeur: checkDirecteur?._id,
+    directeur_adjoint: checkDirecteurAdjoint?._id
   })
     .then((result) => {
       if (!result) {
