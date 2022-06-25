@@ -72,18 +72,73 @@ export const AddDepartement: Handler = async (req: Request, res: Response) => {
 
 export const GetDepartements: Handler = async (req: Request, res: Response) => {
 
-  await DepartementEntity.find()
-    .then((departement) => {
-      if (!departement) {
-        return res.status(404).send({ errorMessage: "Aucun département trouvé" });
+
+  const departement = await DepartementEntity.aggregate([
+    
+    {
+      $lookup: {
+        from: "agents",
+        localField: "directeur",
+        foreignField: "_id",
+        as: "directeur",
+      },
+    },
+
+    {
+      $lookup: {
+        from: "agents",
+        localField: "directeur_adjoint",
+        foreignField: "_id",
+        as: "directeur_adjoint",
+      },
+    },
+
+    {
+      $lookup: {
+        from: "postes",
+        localField: "_id",
+        foreignField: "departement",
+        as: "poste",
+      },
+    },
+
+    {
+      $project:{
+        _id: 1,
+        nom: "$nom",
+        directeur: "$directeur",
+        directeur_adjoint: "$directeur_adjoint",
+        departement_hierarchique: "$departement_hierarchique",
+        postes: "$poste",
+        numOfPostes: {
+          $size:{
+            $filter: {
+              input: "$poste",
+              as: "postes",
+              cond: {
+                $eq: [
+                    "$$postes.departement",
+                    { $toObjectId: "$_id"}
+                ]
+                  
+              },
+            },
+          }
+        }
       }
-      res.status(200).send(departement);
-    })
-    .catch((error) => {
-      return res.status(500).send({
-        errorMessage: "Une erreur s'est produite, veuillez réessayer",
-      });
-    });
+    }
+
+  ])
+
+  try {
+    // console.log("Mon département: ", departement)
+    res.status(200).send(departement);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({ errorMessage: "Une erreur est survenue, veuillez réessayer" });
+  }
+
+
   
 };
 
@@ -94,18 +149,78 @@ export const GetDepartementById: Handler = async (req: Request, res: Response) =
     return res.status(400).send({ errorMessage: "Id invalid" });
   }
 
-  await DepartementEntity.findById(id)
-    .then((departement) => {
-      if (!departement) {
-        return res.status(404).send({ errorMessage: "Aucun département trouvé" });
+  const departement = await DepartementEntity.aggregate([
+
+    {
+      $match: {
+        $expr: {
+          $eq: ["$_id", { $toObjectId: id }],
+        },
+      },
+    },
+    
+    {
+      $lookup: {
+        from: "agents",
+        localField: "directeur",
+        foreignField: "_id",
+        as: "directeur",
+      },
+    },
+
+    {
+      $lookup: {
+        from: "agents",
+        localField: "directeur_adjoint",
+        foreignField: "_id",
+        as: "directeur_adjoint",
+      },
+    },
+
+    {
+      $lookup: {
+        from: "postes",
+        localField: "_id",
+        foreignField: "departement",
+        as: "poste",
+      },
+    },
+
+    {
+      $project:{
+        _id: 1,
+        nom: "$nom",
+        directeur: "$directeur",
+        directeur_adjoint: "$directeur_adjoint",
+        departement_hierarchique: "$departement_hierarchique",
+        postes: "$poste",
+        numOfPostes: {
+          $size:{
+            $filter: {
+              input: "$poste",
+              as: "postes",
+              cond: {
+                $eq: [
+                    "$$postes.departement",
+                    { $toObjectId: "$_id"}
+                ]
+                  
+              },
+            },
+          }
+        }
       }
-      res.status(200).send(departement);
-    })
-    .catch((error) => {
-      return res.status(500).send({
-        errorMessage: "Une erreur s'est produite, veuillez réessayer",
-      });
-    });
+    }
+
+  ])
+
+  try {
+    // console.log("Mon département: ", departement)
+    res.status(200).send(departement);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({ errorMessage: "Une erreur est survenue, veuillez réessayer" });
+  }
 
   
 };
@@ -200,83 +315,42 @@ export const DeleteDepartement: Handler = async (req: Request, res: Response) =>
 
 /*
 
+// await DepartementEntity.find()
+  //   .then((departement) => {
+  //     if (!departement) {
+  //       return res.status(404).send({ errorMessage: "Aucun département trouvé" });
+  //     }
+  //     res.status(200).send(departement);
+  //   })
+  //   .catch((error) => {
+  //     return res.status(500).send({
+  //       errorMessage: "Une erreur s'est produite, veuillez réessayer",
+  //     });
+  //   });
   
 
 */
 
 /*
     
-
+  await DepartementEntity.findById(id)
+    .then((departement) => {
+      if (!departement) {
+        return res.status(404).send({ errorMessage: "Aucun département trouvé" });
+      }
+      res.status(200).send(departement);
+    })
+    .catch((error) => {
+      return res.status(500).send({
+        errorMessage: "Une erreur s'est produite, veuillez réessayer",
+      });
+    });
 
 */
 
 /*
 
-    const departement = await DepartementEntity.aggregate([
     
-    {
-      $lookup: {
-        from: "agents",
-        localField: "directeur",
-        foreignField: "_id",
-        as: "directeur",
-      },
-    },
-
-    {
-      $lookup: {
-        from: "agents",
-        localField: "directeur_adjoint",
-        foreignField: "_id",
-        as: "directeur_adjoint",
-      },
-    },
-
-    {
-      $lookup: {
-        from: "postes",
-        localField: "_id",
-        foreignField: "departement",
-        as: "poste",
-      },
-    },
-
-    {
-      $project:{
-        _id: 1,
-        nom: "$nom",
-        directeur: "$directeur",
-        directeur_adjoint: "$directeur_adjoint",
-        departement_hierarchique: "$departement_hierarchique",
-        postes: "$poste",
-        numOfPostes: {
-          $size:{
-            $filter: {
-              input: "$poste",
-              as: "postes",
-              cond: {
-                $eq: [
-                    "$$postes.departement",
-                    { $toObjectId: "$_id"}
-                ]
-                  
-              },
-            },
-          }
-        }
-      }
-    }
-
-  ])
-
-  try {
-    console.log("Mon département: ", departement)
-    res.status(200).send(departement);
-  } catch (error) {
-    console.log(error);
-    return res.status(500).send({ errorMessage: "Une erreur est survenue, veuillez réessayer" });
-  }
-
 */
 
 
